@@ -104,4 +104,4 @@ async def analyze_repo(
         raise e
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))# docs: final polishing and cleanup at 2026-03-20 18:16:00
