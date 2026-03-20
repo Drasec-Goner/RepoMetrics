@@ -175,7 +175,10 @@ for date, messages in timeline:
 
         file = pick_file(msg)
 
-        os.makedirs(os.path.dirname(file), exist_ok=True)
+        dir_name = os.path.dirname(file)
+
+        if dir_name:  # only create if not empty
+            os.makedirs(dir_name, exist_ok=True)
 
         with open(file, "a") as f:
             f.write(f"\n# {msg} @ {dt}")
