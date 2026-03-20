@@ -105,3 +105,4 @@ async def analyze_repo(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))# docs: final polishing and cleanup at 2026-03-20 18:16:00
+# ui: add README parsing at 2026-03-20 11:47:00
