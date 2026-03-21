@@ -37,3 +37,4 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     logger.info("Shutting down RepoMetrics API...")
+# setup: initialize FastAPI backend @ 2026-03-21T14:06:00
