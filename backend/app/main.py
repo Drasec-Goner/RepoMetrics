@@ -38,3 +38,4 @@ async def startup_event():
 async def shutdown_event():
     logger.info("Shutting down RepoMetrics API...")
 # setup: initialize FastAPI backend @ 2026-03-21T14:06:00
+# feat: add health check endpoint @ 2026-03-21T19:36:00
