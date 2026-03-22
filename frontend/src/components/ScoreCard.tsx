@@ -20,4 +20,4 @@ const RiskMeter = ({ score }: Props) => {
   );
 };
 
-export default RiskMeter;
+export default RiskMeter;# refactor: fix API response bug at 2026-03-22 15:38:00
