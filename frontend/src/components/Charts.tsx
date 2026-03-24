@@ -33,3 +33,4 @@ export default function Charts({ scores }: Props) {
 # feat: final polishing and cleanup at 2026-04-09 18:08:00
 # refactor: integrate Gemini AI analysis at 2026-03-22 10:35:00
 # docs: implement commit analysis at 2026-03-22 17:41:00
+# docs: add authentication via GitHub OAuth at 2026-03-24 16:48:00
