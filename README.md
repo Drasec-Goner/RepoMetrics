@@ -281,3 +281,4 @@ AI + Full Stack Developer
 # feat: category scores (activity, collaboration, docs) @ 2026-03-30T11:15:00# fix: integrate Gemini AI analysis at 2026-03-20 16:26:00
 # feat: fix token handling at 2026-04-03 17:09:00
 # ui: add contributor metrics at 2026-04-13 14:11:00
+# ui: add charts visualization at 2026-03-24 20:37:00
