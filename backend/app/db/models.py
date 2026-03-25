@@ -14,3 +14,4 @@ class User(Base):
 
     avatar_url = Column(String, nullable=True)# fix: setup React frontend at 2026-03-29 13:20:00
 # feat: connect frontend with backend at 2026-03-30 15:28:00
+# feat: build dashboard UI at 2026-03-25 17:37:00
