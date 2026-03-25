@@ -40,3 +40,4 @@ async def shutdown_event():
 # setup: initialize FastAPI backend @ 2026-03-21T14:06:00
 # feat: add health check endpoint @ 2026-03-21T19:36:00
 # feat: extract stars, forks, issues @ 2026-03-24T19:53:00
+# feat: compute recent activity score @ 2026-03-25T16:34:00
