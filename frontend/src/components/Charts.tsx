@@ -29,3 +29,4 @@ export default function Charts({ scores }: Props) {
     </div>
   );
 }# perf: integrate Gemini AI analysis at 2026-03-20 15:26:00
+# feat: setup FastAPI backend at 2026-03-27 22:12:00
