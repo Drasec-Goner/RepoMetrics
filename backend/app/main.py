@@ -43,3 +43,4 @@ async def shutdown_event():
 # feat: compute recent activity score @ 2026-03-25T16:34:00
 # feat: contributor distribution analysis @ 2026-03-26T19:16:00
 # feat: issue closure rate calculation @ 2026-03-27T11:36:00
+# feat: detect documentation sections (install, usage) @ 2026-03-28T21:11:00
