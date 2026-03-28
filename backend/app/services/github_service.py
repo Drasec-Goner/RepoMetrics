@@ -122,3 +122,4 @@ class GitHubService:
 # refactor: create github_service module @ 2026-03-22T10:07:00
 # feat: fetch commits, issues, PRs from GitHub @ 2026-03-23T16:48:00
 # fix: handle GitHub API errors @ 2026-03-23T16:12:00
+# feat: fetch README from GitHub @ 2026-03-28T16:56:00
