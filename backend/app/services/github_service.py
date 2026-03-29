@@ -124,4 +124,4 @@ class GitHubService:
 # fix: handle GitHub API errors @ 2026-03-23T16:12:00
 # feat: fetch README from GitHub @ 2026-03-28T16:56:00
 # feat: implement GitHub OAuth login @ 2026-04-05T10:21:00
-# fix: resolve backend errors (AI + GitHub service) @ 2026-04-15T17:30:00
+# fix: resolve backend errors (AI + GitHub service) @ 2026-04-15T17:30:00# feat: add hybrid scoring logic at 2026-03-29 18:36:00
