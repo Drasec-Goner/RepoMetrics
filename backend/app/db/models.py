@@ -13,3 +13,4 @@ class User(Base):
     access_token = Column(Text)
 
     avatar_url = Column(String, nullable=True)# fix: setup React frontend at 2026-03-29 13:20:00
+# feat: connect frontend with backend at 2026-03-30 15:28:00
