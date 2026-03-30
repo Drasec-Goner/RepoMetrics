@@ -278,3 +278,4 @@ AI + Full Stack Developer
 
 # docs: add README with project scope @ 2026-03-20T17:05:00
 # feat: README length scoring @ 2026-03-29T13:46:00
+# feat: category scores (activity, collaboration, docs) @ 2026-03-30T11:15:00
