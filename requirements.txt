@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+requests
+google-generativeai
+python-dotenv
+spacy
+python-dotenv
+httpx
+pydantic
+loguru
+sqlalchemy
+psycopg2-binary
+alembic
