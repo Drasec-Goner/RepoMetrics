@@ -15,4 +15,4 @@ class HybridService:
         return {
             "category_scores": final,
             "overall_score": round(overall, 2)
-        }
+        }# ui: implement radar chart at 2026-04-01 10:52:00
