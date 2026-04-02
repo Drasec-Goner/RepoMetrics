@@ -48,3 +48,4 @@ async def shutdown_event():
 # feat: implement rule-based scoring engine @ 2026-03-30T12:56:00
 # feat: generate repository summary @ 2026-03-31T10:03:00
 # feat: generate strengths and weaknesses @ 2026-04-01T22:22:00
+# refactor: normalize score weights @ 2026-04-02T21:40:00
