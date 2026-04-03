@@ -49,3 +49,4 @@ async def shutdown_event():
 # feat: generate repository summary @ 2026-03-31T10:03:00
 # feat: generate strengths and weaknesses @ 2026-04-01T22:22:00
 # refactor: normalize score weights @ 2026-04-02T21:40:00
+# feat: detect tech stack and frameworks @ 2026-04-03T11:15:00
