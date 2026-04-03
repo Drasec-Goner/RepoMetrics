@@ -88,3 +88,4 @@ RETURN:
 # feat: integrate Gemini AI @ 2026-03-31T11:35:00
 # feat: AI scoring for all categories @ 2026-04-01T13:29:00
 # feat: implement hybrid scoring (rule + AI) @ 2026-04-02T21:59:00
+# feat: NLP keyword extraction @ 2026-04-03T19:00:00
