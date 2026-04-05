@@ -108,3 +108,4 @@ async def analyze_repo(
 # ui: add README parsing at 2026-03-20 11:47:00
 # feat: implement radar chart at 2026-03-21 21:29:00
 # docs: implement PR & issue scoring at 2026-03-25 13:54:00
+# feat: optimize API calls at 2026-04-05 16:58:00
