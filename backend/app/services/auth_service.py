@@ -61,3 +61,4 @@ class AuthService:
         db.refresh(user)
 
         return user
+# feat: add auth routes @ 2026-04-05T18:27:00

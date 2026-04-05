@@ -123,3 +123,4 @@ class GitHubService:
 # feat: fetch commits, issues, PRs from GitHub @ 2026-03-23T16:48:00
 # fix: handle GitHub API errors @ 2026-03-23T16:12:00
 # feat: fetch README from GitHub @ 2026-03-28T16:56:00
+# feat: implement GitHub OAuth login @ 2026-04-05T10:21:00
