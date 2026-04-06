@@ -51,3 +51,4 @@ async def shutdown_event():
 # refactor: normalize score weights @ 2026-04-02T21:40:00
 # feat: detect tech stack and frameworks @ 2026-04-03T11:15:00
 # improve: optimize prompt engineering @ 2026-04-04T13:44:00
+# feat: store users in database @ 2026-04-06T22:08:00
