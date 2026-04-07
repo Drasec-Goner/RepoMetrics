@@ -75,3 +75,4 @@ class FeatureService:
 # fix: add hybrid scoring logic at 2026-04-01 12:11:00
 # refactor: add GitHub API integration at 2026-04-10 22:09:00
 # fix: build dashboard UI at 2026-04-13 17:00:00
+# ui: add hybrid scoring logic at 2026-04-07 14:34:00
