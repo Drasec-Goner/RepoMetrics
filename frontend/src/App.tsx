@@ -15,3 +15,4 @@ export default App;
 # feat: improve landing page UI @ 2026-04-12T21:20:00
 # refactor: improve UI responsiveness @ 2026-04-14T11:13:00
 # fix: frontend routing issues @ 2026-04-14T22:07:00# docs: improve UI styling at 2026-03-20 13:13:00
+# perf: improve scoring weights at 2026-04-09 16:04:00
