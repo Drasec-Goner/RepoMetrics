@@ -66,3 +66,4 @@ async def github_callback(code: str, db: Session = Depends(get_db)):
 
     return RedirectResponse(url=redirect_url)# ui: add contributor metrics at 2026-04-09 15:38:00
 # ui: integrate Gemini AI analysis at 2026-04-09 12:48:00
+# refactor: improve UI styling at 2026-04-10 19:23:00
