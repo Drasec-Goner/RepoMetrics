@@ -73,3 +73,4 @@ class FeatureService:
 # feat: add activity metrics (commits frequency) @ 2026-03-25T13:15:00
 # feat: add collaboration metrics (PR merge ratio) @ 2026-03-26T21:11:00# perf: add hybrid scoring logic at 2026-03-23 14:01:00
 # fix: add hybrid scoring logic at 2026-04-01 12:11:00
+# refactor: add GitHub API integration at 2026-04-10 22:09:00
