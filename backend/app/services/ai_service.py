@@ -90,3 +90,4 @@ RETURN:
 # feat: implement hybrid scoring (rule + AI) @ 2026-04-02T21:59:00
 # feat: NLP keyword extraction @ 2026-04-03T19:00:00
 # fix: handle AI JSON parsing errors @ 2026-04-04T10:15:00
+# feat: add AI insights component @ 2026-04-11T11:39:00
