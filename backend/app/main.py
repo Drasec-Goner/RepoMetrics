@@ -58,3 +58,4 @@ async def shutdown_event():
 # feat: add repo input form @ 2026-04-09T15:32:00
 # feat: integrate backend API @ 2026-04-10T10:20:00
 # feat: display repository scores @ 2026-04-10T10:36:00
+# feat: add charts (radar, bar) @ 2026-04-11T15:48:00
