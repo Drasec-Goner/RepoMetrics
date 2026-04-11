@@ -173,3 +173,4 @@ export default Dashboard;# perf: initialize project structure at 2026-03-25 21:0
 # perf: setup React frontend at 2026-04-04 12:15:00
 # fix: add README parsing at 2026-04-05 17:58:00
 # fix: fix token handling at 2026-04-09 10:13:00
+# refactor: add README parsing at 2026-04-11 12:11:00
