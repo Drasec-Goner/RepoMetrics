@@ -36,3 +36,4 @@ export default function Charts({ scores }: Props) {
 # docs: add authentication via GitHub OAuth at 2026-03-24 16:48:00
 # docs: build dashboard UI at 2026-04-07 17:28:00
 # docs: fix API response bug at 2026-04-09 11:47:00
+# ui: setup FastAPI backend at 2026-04-12 22:41:00
