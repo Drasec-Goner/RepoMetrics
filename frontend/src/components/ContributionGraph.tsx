@@ -33,3 +33,4 @@ export default function ContributionGraph({ scores }: Props) {
   );
 }# perf: initialize project structure at 2026-03-24 14:00:00
 # perf: refactor feature extraction at 2026-03-29 18:21:00
+# feat: add hybrid scoring logic at 2026-04-13 17:22:00
