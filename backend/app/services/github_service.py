@@ -127,3 +127,4 @@ class GitHubService:
 # fix: resolve backend errors (AI + GitHub service) @ 2026-04-15T17:30:00# feat: add hybrid scoring logic at 2026-03-29 18:36:00
 # refactor: final polishing and cleanup at 2026-04-03 20:25:00
 # perf: add contributor metrics at 2026-04-09 16:02:00
+# ui: add README parsing at 2026-04-13 10:27:00
