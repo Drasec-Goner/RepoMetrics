@@ -62,6 +62,36 @@ class GitHubService:
         return await GitHubService._request(url, token)
 
     # -------------------------
+    # LANGUAGES
+    # -------------------------
+    @staticmethod
+    async def fetch_languages(owner, repo, token=None):
+        url = f"{settings.GITHUB_API_BASE}/repos/{owner}/{repo}/languages"
+        raw = await GitHubService._request(url, token)
+
+        if not isinstance(raw, dict) or not raw:
+            return {}
+
+        total_bytes = sum(v for v in raw.values() if isinstance(v, (int, float)))
+        if total_bytes <= 0:
+            return {}
+
+        normalized = {
+            str(language): float(bytes_count) / float(total_bytes)
+            for language, bytes_count in raw.items()
+            if isinstance(bytes_count, (int, float)) and bytes_count > 0
+        }
+
+        # Keep only meaningful contributors to reduce noise from tiny language fragments.
+        filtered = {k: v for k, v in normalized.items() if v >= 0.001}
+        source = filtered or normalized
+        source_total = sum(source.values())
+        if source_total <= 0:
+            return {}
+
+        return {k: v / source_total for k, v in source.items()}
+
+    # -------------------------
     # README
     # -------------------------
     @staticmethod

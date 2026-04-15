@@ -2,7 +2,7 @@ import json
 import urllib.parse
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -31,23 +31,35 @@ async def github_callback(code: str, db: Session = Depends(get_db)):
     token_data = await AuthService.exchange_code_for_token(code)
     github_token = token_data.get("access_token")
 
-    if not github_token:
-        return {"error": "Failed to get access token"}
+    if token_data.get("error") or not github_token:
+        raise HTTPException(
+            status_code=502,
+            detail=token_data.get("error_description") or "Failed to get access token from GitHub",
+        )
 
     # 2. Fetch GitHub user
     user_data = await AuthService.fetch_github_user(github_token)
+
+    if user_data.get("message") or not user_data.get("id"):
+        raise HTTPException(
+            status_code=502,
+            detail=user_data.get("message") or "Failed to fetch GitHub user",
+        )
 
     # 3. Save user
     user = AuthService.create_or_update_user(db, user_data, github_token)
 
     # 4. Create YOUR app JWT (NOT GitHub token)
-    jwt_token = create_access_token(
-        data={
-            "user_id": user.id,
-            "github_id": user.github_id,
-        },
-        expires_delta=timedelta(days=7)
-    )
+    try:
+        jwt_token = create_access_token(
+            data={
+                "user_id": user.id,
+                "github_id": user.github_id,
+            },
+            expires_delta=timedelta(days=7)
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     frontend_url = settings.FRONTEND_URL.rstrip("/")
 
@@ -64,6 +76,4 @@ async def github_callback(code: str, db: Session = Depends(get_db)):
     # ✅ Send ONLY your JWT
     redirect_url = f"{frontend_url}/auth/callback?token={encoded_token}&user={encoded_user}"
 
-    return RedirectResponse(url=redirect_url)# ui: add contributor metrics at 2026-04-09 15:38:00
-# ui: integrate Gemini AI analysis at 2026-04-09 12:48:00
-# refactor: improve UI styling at 2026-04-10 19:23:00
+    return RedirectResponse(url=redirect_url)

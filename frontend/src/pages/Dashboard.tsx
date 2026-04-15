@@ -7,11 +7,19 @@ import ScoreCard from "../components/ScoreCard";
 import RadarChartComponent from "../components/charts/RadarChartComponent";
 import BarChartComponent from "../components/charts/BarChartComponent";
 import RiskMeter from "../components/RiskMeter";
-import SummaryCard from "../components/SummaryCard";
 import InsightSection from "../components/InsightSection";
 import TechStack from "../components/TechStack";
 import LoadingDashboard from "../components/LoadingDashboard";
 import ErrorState from "../components/ErrorState";
+import ScoreExplanationCard from "../components/ScoreExplanationCard";
+import ImprovementGuide from "../components/ImprovementGuide";
+
+const gradeFromScore = (score: number) => {
+  if (score >= 85) return "A";
+  if (score >= 70) return "B";
+  if (score >= 50) return "C";
+  return "D";
+};
 
 const Dashboard = () => {
   const user = getUser();
@@ -32,7 +40,7 @@ const Dashboard = () => {
 
         const data = await fetchUserRepos();
         setRepos(data);
-      } catch (error) {
+      } catch {
         setError("Failed to load repositories");
       } finally {
         setLoadingRepos(false);
@@ -54,7 +62,7 @@ const Dashboard = () => {
 
       const data = await analyzeRepo(owner, repo);
       setResult(data);
-    } catch (error) {
+    } catch {
       setError("Analysis failed. Please try again.");
     } finally {
       setAnalyzing(false);
@@ -120,45 +128,85 @@ const Dashboard = () => {
 
       {!analyzing && result && (
         <div className="space-y-6 animate-fade-in">
+          {(() => {
+            const finalScore = result.final?.score ?? result.final?.overall_score ?? 0;
+            const finalGrade = result.final?.grade ?? gradeFromScore(finalScore);
+            const aiScores = result.ai_analysis?.scores ?? {};
+            const breakdown = result.final?.breakdown ?? result.final?.category_scores ?? {};
+            const summary = result.ai_analysis?.analysis?.summary ?? "AI summary unavailable.";
+            const verdict = result.ai_analysis?.analysis?.verdict ?? "";
+            const tech = result.ai_analysis?.tech ?? {};
+            const githubLanguages = result.repository?.languages ?? {};
+            const primaryLanguage = result.repository?.language ?? "";
+            const strengths = result.ai_analysis?.analysis?.strengths ?? [];
+            const weaknesses = result.ai_analysis?.analysis?.weaknesses ?? [];
+            const recommendations = result.ai_analysis?.analysis?.recommendations ?? [];
+            const ruleScores = result.rule_scores ?? {};
+            const risk = result.final?.risk;
+            const categoryDetails = result.final?.category_details ?? {};
+
+            return (
+              <>
           {/* Score */}
           <ScoreCard
-            score={result.final.score}
-            grade={result.final.grade}
+            score={finalScore}
+            grade={finalGrade}
+          />
+
+          <ScoreExplanationCard
+            finalScore={finalScore}
+            grade={finalGrade}
+            ruleScores={ruleScores}
+            aiScores={aiScores}
+            aiSummary={summary}
+            aiVerdict={verdict}
+          />
+
+          <ImprovementGuide
+            details={categoryDetails}
+            currentScore={finalScore}
+            currentGrade={finalGrade}
           />
 
           {/* Charts */}
           <div className="grid md:grid-cols-2 gap-6">
-            <RadarChartComponent data={result.ai_analysis.scores} />
-            <BarChartComponent data={result.final.breakdown} />
+            <RadarChartComponent data={aiScores} fallbackData={breakdown} />
+            <BarChartComponent data={breakdown} ruleScores={ruleScores} aiScores={aiScores} />
           </div>
 
           {/* Risk */}
-          <RiskMeter score={result.final.score} />
+          <RiskMeter
+            score={finalScore}
+            riskScore={risk?.score}
+            meaning={risk?.meaning}
+            reasons={risk?.reasons}
+          />
 
-          {/* AI Summary */}
-          <SummaryCard summary={result.ai_analysis.analysis.summary} />
-          <TechStack tech={result.ai_analysis.tech} />
+          <TechStack tech={tech} githubLanguages={githubLanguages} primaryLanguage={primaryLanguage} />
 
           {/* Insights */}
           <div className="grid md:grid-cols-2 gap-6">
             <InsightSection
               title="Strengths"
-              items={result.ai_analysis.analysis.strengths}
+              items={strengths}
               type="good"
             />
 
             <InsightSection
               title="Weaknesses"
-              items={result.ai_analysis.analysis.weaknesses}
+              items={weaknesses}
               type="bad"
             />
           </div>
 
           <InsightSection
             title="Recommendations"
-            items={result.ai_analysis.analysis.recommendations}
+            items={recommendations}
             type="suggestion"
           />
+              </>
+            );
+          })()}
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { saveAuth } from "../utils/auth";
+import { logout, saveAuth } from "../utils/auth";
 import type { User } from "../types";
 
 const AuthCallback = () => {
@@ -10,40 +10,23 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleAuth = () => {
       try {
+        logout();
+
         const params = new URLSearchParams(window.location.search);
 
         const userParam = params.get("user");
         const tokenParam = params.get("token");
 
-        // ✅ CASE 1: Token-based auth (preferred)
-        if (tokenParam) {
-          const decodedToken = decodeURIComponent(tokenParam);
-
-          // ⚠️ Optional: If backend also sends user separately
-          if (userParam) {
-            const user: User = JSON.parse(decodeURIComponent(userParam));
-            saveAuth(user, decodedToken);
-          } else {
-            // fallback (you may fetch user later)
-            saveAuth({ id: 0, login: "unknown", avatar_url: "" }, decodedToken);
-          }
-
+        // Require both user and token to avoid saving incomplete auth state.
+        if (tokenParam && userParam) {
+          const user: User = JSON.parse(decodeURIComponent(userParam));
+          const token = decodeURIComponent(tokenParam);
+          saveAuth(user, token);
           navigate("/dashboard");
           return;
         }
 
-        // ✅ CASE 2: User-only auth
-        if (userParam) {
-          const decoded = decodeURIComponent(userParam);
-          const user: User = JSON.parse(decoded);
-
-          saveAuth(user);
-          navigate("/dashboard");
-          return;
-        }
-
-        // ❌ No valid data
-        throw new Error("No authentication data found");
+        throw new Error("Invalid authentication callback payload");
       } catch (err) {
         console.error("Auth Error:", err);
         setError("Authentication failed. Please try again.");

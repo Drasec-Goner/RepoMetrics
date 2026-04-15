@@ -10,6 +10,7 @@ class Settings:
     DEBUG: bool = os.getenv("DEBUG", "False") == "True"
     PORT: int = int(os.getenv("PORT", 8000))
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    SECRET_KEY: str | None = os.getenv("SECRET_KEY")
 
     # GitHub API
     GITHUB_API_BASE: str = os.getenv("GITHUB_API_BASE", "https://api.github.com")

@@ -16,7 +16,7 @@ const RepoSelector = ({ repos, selected, onChange }: Props) => {
       <option value="">Select a repository</option>
 
       {repos.map((repo) => (
-        <option key={repo.id} value={repo.full_name}>
+        <option key={repo.id ?? repo.full_name} value={repo.full_name}>
           {repo.full_name}
         </option>
       ))}

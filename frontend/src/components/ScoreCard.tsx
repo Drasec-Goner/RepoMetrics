@@ -1,23 +1,22 @@
 interface Props {
   score: number;
+  grade: string;
 }
 
-const getRiskLevel = (score: number) => {
-  if (score >= 80) return "Low";
-  if (score >= 60) return "Moderate";
-  if (score >= 40) return "High";
-  return "Critical";
-};
-
-const RiskMeter = ({ score }: Props) => {
-  const level = getRiskLevel(score);
-
+const ScoreCard = ({ score, grade }: Props) => {
   return (
-    <div className="bg-cardDark p-6 rounded-2xl">
-      <h3 className="mb-2 font-medium">Risk Level</h3>
-      <p className="text-xl font-bold">{level}</p>
+    <div className="bg-cardDark p-6 rounded-2xl shadow-lg flex justify-between items-center">
+      <div>
+        <p className="text-gray-400 text-sm">Final Score</p>
+        <h2 className="text-3xl font-bold">{score}</h2>
+      </div>
+
+      <div className="text-right">
+        <p className="text-gray-400 text-sm">Grade</p>
+        <h2 className="text-2xl font-semibold text-primary">{grade}</h2>
+      </div>
     </div>
   );
 };
 
-export default RiskMeter;
+export default ScoreCard;

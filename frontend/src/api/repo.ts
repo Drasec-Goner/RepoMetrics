@@ -3,7 +3,19 @@ import type { Repo, AnalysisResponse } from "../types";
 
 export const fetchUserRepos = async (): Promise<Repo[]> => {
   const res = await apiClient.get("/user/repos");
-  return res.data;
+
+  // Supports both response shapes:
+  // 1) Array (preferred): [{...}, {...}]
+  // 2) Wrapped legacy shape: { repos: [{...}] }
+  if (Array.isArray(res.data)) {
+    return res.data;
+  }
+
+  if (Array.isArray(res.data?.repos)) {
+    return res.data.repos;
+  }
+
+  return [];
 };
 
 export const analyzeRepo = async (

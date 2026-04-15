@@ -1,10 +1,12 @@
+import type { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
-import { getUser } from "../utils/auth";
+import { getToken, getUser } from "../utils/auth";
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+const ProtectedRoute = ({ children }: { children: ReactElement }) => {
   const user = getUser();
+  const token = getToken();
 
-  if (!user) {
+  if (!user || !token) {
     return <Navigate to="/" replace />;
   }
 

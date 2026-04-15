@@ -4,8 +4,9 @@ from datetime import datetime
 class FeatureService:
 
     @staticmethod
-    def extract_features(repo, commits, contributors, pulls, issues, readme):
+    def extract_features(repo, commits, contributors, pulls, issues, readme, languages=None):
         features = {}
+        languages = languages or {}
 
         # Activity Metrics
         features["commit_count"] = len(commits)
@@ -20,15 +21,34 @@ class FeatureService:
         # Popularity
         features["stars"] = repo.get("stargazers_count", 0)
         features["forks"] = repo.get("forks_count", 0)
+        features["open_issues_count"] = repo.get("open_issues_count", 0)
+        features["primary_language"] = repo.get("language") or ""
+        features["description_length"] = len((repo.get("description") or "").strip())
+        features["subscribers_count"] = repo.get("subscribers_count", 0)
+        features["watchers_count"] = repo.get("watchers_count", 0)
+        features["repo_size_kb"] = repo.get("size", 0)
+        features["is_archived"] = bool(repo.get("archived", False))
+        features["has_wiki"] = bool(repo.get("has_wiki", False))
+        features["license_present"] = bool(repo.get("license"))
+
+        # Language profile
+        features["language_count"] = len(languages)
+        features["dominant_language_share"] = max(languages.values()) if languages else 0
+        features["top_languages"] = [name for name, _ in sorted(languages.items(), key=lambda x: x[1], reverse=True)[:8]]
 
         # Documentation
         readme_text = ""
-        if readme and "content" in readme:
+        if isinstance(readme, str):
+            readme_text = readme
+        elif isinstance(readme, dict) and "content" in readme:
             import base64
             readme_text = base64.b64decode(readme["content"]).decode("utf-8", errors="ignore")
 
         features["readme_length"] = len(readme_text)
         features["has_readme"] = len(readme_text) > 0
+        features["readme_section_count"] = FeatureService._count_readme_sections(readme_text)
+        features["readme_keyword_score"] = FeatureService._readme_keyword_score(readme_text)
+        features["readme_excerpt"] = readme_text[:1500]
 
         return features
 
@@ -66,6 +86,30 @@ class FeatureService:
             return 0
         closed = [i for i in issues if i.get("state") == "closed"]
         return len(closed) / len(issues)
+
+    @staticmethod
+    def _count_readme_sections(readme_text: str) -> int:
+        if not readme_text:
+            return 0
+        return sum(1 for line in readme_text.splitlines() if line.strip().startswith("#"))
+
+    @staticmethod
+    def _readme_keyword_score(readme_text: str) -> int:
+        if not readme_text:
+            return 0
+
+        lower = readme_text.lower()
+        keywords = [
+            "install",
+            "usage",
+            "contributing",
+            "license",
+            "api",
+            "example",
+            "features",
+        ]
+        hits = sum(1 for keyword in keywords if keyword in lower)
+        return round((hits / len(keywords)) * 100)
 # init: create RepoMetrics project @ 2026-03-20T15:28:00
 # init: create RepoMetrics project @ 2026-03-20T20:42:00
 # init: create RepoMetrics project @ 2026-03-20T16:40:00
