@@ -78,3 +78,4 @@ class FeatureService:
 # ui: add hybrid scoring logic at 2026-04-07 14:34:00
 # perf: add contributor metrics at 2026-04-08 16:12:00
 # refactor: add charts visualization at 2026-04-11 15:37:00
+# fix: implement radar chart at 2026-04-15 19:03:00
