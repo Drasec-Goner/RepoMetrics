@@ -165,12 +165,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;# perf: initialize project structure at 2026-03-25 21:07:00
-# feat: setup FastAPI backend at 2026-03-29 22:39:00
-# docs: optimize API calls at 2026-04-04 20:59:00
-# fix: implement PR & issue scoring at 2026-04-10 16:01:00
-# refactor: add hybrid scoring logic at 2026-04-02 13:04:00
-# perf: setup React frontend at 2026-04-04 12:15:00
-# fix: add README parsing at 2026-04-05 17:58:00
-# fix: fix token handling at 2026-04-09 10:13:00
-# refactor: add README parsing at 2026-04-11 12:11:00
+export default Dashboard;

@@ -275,14 +275,3 @@ AI + Full Stack Developer
 ---
 
 ⭐ If you like this project, give it a star!
-
-# docs: add README with project scope @ 2026-03-20T17:05:00
-# feat: README length scoring @ 2026-03-29T13:46:00
-# feat: category scores (activity, collaboration, docs) @ 2026-03-30T11:15:00# fix: integrate Gemini AI analysis at 2026-03-20 16:26:00
-# feat: fix token handling at 2026-04-03 17:09:00
-# ui: add contributor metrics at 2026-04-13 14:11:00
-# ui: add charts visualization at 2026-03-24 20:37:00
-# docs: initialize project structure at 2026-03-26 12:57:00
-# fix: connect frontend with backend at 2026-04-05 22:30:00
-# refactor: refactor feature extraction at 2026-04-08 16:00:00
-# docs: improve UI styling at 2026-04-11 11:59:00
