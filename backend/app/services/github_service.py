@@ -130,3 +130,4 @@ class GitHubService:
 # ui: add README parsing at 2026-04-13 10:27:00
 # fix: refactor feature extraction at 2026-04-13 12:45:00
 # feat: add contribution graph at 2026-04-14 11:59:00
+# feat: add hybrid scoring logic at 2026-04-15 21:02:00
