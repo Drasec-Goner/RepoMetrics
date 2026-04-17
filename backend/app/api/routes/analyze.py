@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from app.services.github_service import GitHubService
 from app.services.feature_service import FeatureService
 from app.services.ai_service import AIService
+from app.services.scoring_service import ScoringService
 from app.services.hybrid_service import HybridService
 
 from app.db.database import get_db
@@ -45,6 +46,269 @@ def _grade_from_score(score: float) -> str:
     if score >= 50:
         return "C"
     return "D"
+
+
+def _categorize_recommendations(recommendations: list[str], features: dict) -> dict:
+    """
+    Categorizes recommendations into categories and checks if they're already implemented.
+    Returns a dict mapping category -> list of {text, status} where status is 'implemented' or 'recommended'.
+    """
+    
+    category_keywords = {
+        "activity": ["commit", "release", "cadence", "frequency", "active", "maintenance", "changelog"],
+        "collaboration": ["pr", "review", "merge", "contributor", "contributing", "pull request", "guidelines", "templates"],
+        "documentation": ["readme", "docs", "documentation", "examples", "api", "architecture", "guide", "setup"],
+        "stability": ["issue", "bug", "test", "ci", "regression", "reliability", "metrics", "automation"],
+        "popularity": ["discoverability", "tags", "topics", "community", "adoption", "showcase", "demo", "share"],
+    }
+    
+    # Check for already-implemented features
+    implemented_checks = {
+        "activity": features.get("recent_commits", 0) >= 60,  # Active recent commits
+        "collaboration": features.get("pr_total", 0) > 0 and features.get("pr_merged_ratio", 0) > 0.5,
+        "documentation": features.get("has_readme") and features.get("readme_keyword_score", 0) >= 50,
+        "stability": features.get("issue_closure_rate", 0) >= 0.5 or features.get("open_issues_count", 0) < 20,
+        "popularity": features.get("stars", 0) > 0 or features.get("license_present"),
+    }
+    
+    categorized = {
+        "activity": [],
+        "collaboration": [],
+        "documentation": [],
+        "stability": [],
+        "popularity": [],
+    }
+    
+    for rec in recommendations:
+        rec_lower = rec.lower()
+        assigned = False
+        
+        # Try to categorize by keywords
+        for category, keywords in category_keywords.items():
+            if any(keyword in rec_lower for keyword in keywords):
+                # Check if this specific recommendation is already implemented
+                status = "implemented" if implemented_checks.get(category) else "recommended"
+                categorized[category].append({
+                    "text": rec,
+                    "status": status
+                })
+                assigned = True
+                break
+        
+        # If not assigned, put in activity as default
+        if not assigned:
+            categorized["activity"].append({
+                "text": rec,
+                "status": "recommended"
+            })
+    
+    return categorized
+
+
+def _parse_commit_dates(commits: list[dict]) -> list[datetime]:
+    parsed_dates: list[datetime] = []
+
+    for commit in commits:
+        date_text = (
+            commit.get("commit", {})
+            .get("author", {})
+            .get("date")
+        )
+
+        if not date_text:
+            continue
+
+        try:
+            parsed_dates.append(datetime.fromisoformat(str(date_text).replace("Z", "")))
+        except ValueError:
+            continue
+
+    return sorted(parsed_dates, reverse=True)
+
+
+def _build_historical_analysis(commits: list[dict], final_score: float, rule_scores: dict) -> dict:
+    dates = _parse_commit_dates(commits)
+    if not dates:
+        return {
+            "trend": "stable",
+            "summary": "No commit history was available to build a trend line.",
+            "timeline": [],
+        }
+
+    now = datetime.utcnow()
+    windows = [180, 90, 30, 7]
+    timeline = []
+
+    for days in windows:
+        threshold = now - timedelta(days=days)
+        count = sum(1 for commit_date in dates if commit_date >= threshold)
+        activity_rate = count / max(days / 7.0, 1.0)
+        activity_score = _clamp_score(activity_rate * 18.0)
+        projected_score = _clamp_score((final_score * 0.75) + (activity_score * 0.25))
+
+        timeline.append({
+            "period": f"Last {days} days",
+            "commit_count": count,
+            "activity_score": activity_score,
+            "projected_score": projected_score,
+            "grade": _grade_from_score(projected_score),
+        })
+
+    last_30 = timeline[2]["commit_count"]
+    prev_30 = max(0, timeline[1]["commit_count"] - last_30)
+
+    if last_30 > prev_30 * 1.15:
+        trend = "improving"
+        summary = "Recent activity is accelerating, which usually supports healthier maintenance and release cadence."
+    elif last_30 < prev_30 * 0.85:
+        trend = "declining"
+        summary = "Recent activity is slowing down, so the project may be losing momentum and maintenance visibility."
+    else:
+        trend = "stable"
+        summary = "Commit activity is relatively steady, with no major acceleration or drop in recent momentum."
+
+    if rule_scores.get("stability", 0) < 50:
+        summary += " Issue resolution quality still needs attention."
+
+    return {
+        "trend": trend,
+        "summary": summary,
+        "timeline": timeline,
+    }
+
+
+def _build_score_hurt_factors(rule_scores: dict, features: dict, ai_analysis: dict) -> list[dict]:
+    factors: list[dict] = []
+
+    def add_factor(category: str, score: float, label: str, detail: str, severity_weight: float):
+        if score >= 70:
+            return
+
+        severity = "high" if score < 45 else "medium"
+        factors.append({
+            "category": category,
+            "label": label,
+            "detail": detail,
+            "score": round(float(score), 1),
+            "severity": severity,
+            "impact": round((100 - float(score)) * severity_weight, 1),
+        })
+
+    add_factor(
+        "documentation",
+        float(rule_scores.get("documentation", 0) or 0),
+        "Documentation depth",
+        "The README and supporting docs are not strong enough to make onboarding and maintenance effortless.",
+        0.35,
+    )
+    add_factor(
+        "activity",
+        float(rule_scores.get("activity", 0) or 0),
+        "Development cadence",
+        "Commit velocity is not showing strong, steady maintenance signals.",
+        0.32,
+    )
+    add_factor(
+        "stability",
+        float(rule_scores.get("stability", 0) or 0),
+        "Issue and reliability health",
+        "Issue resolution and regression signals are weaker than they should be.",
+        0.3,
+    )
+    add_factor(
+        "collaboration",
+        float(rule_scores.get("collaboration", 0) or 0),
+        "Collaboration flow",
+        "PR review, merge, or contributor signals could be stronger.",
+        0.28,
+    )
+    add_factor(
+        "popularity",
+        float(rule_scores.get("popularity", 0) or 0),
+        "Adoption visibility",
+        "Stars, forks, or broader discoverability signals are still limited.",
+        0.2,
+    )
+
+    if not features.get("has_readme"):
+        factors.append({
+            "category": "documentation",
+            "label": "Missing README",
+            "detail": "A README is one of the fastest ways to improve clarity and onboarding.",
+            "score": 0,
+            "severity": "high",
+            "impact": 35,
+        })
+
+    if features.get("license_present") is False:
+        factors.append({
+            "category": "compliance",
+            "label": "No license detected",
+            "detail": "A clear license improves trust and makes reuse safer.",
+            "score": 0,
+            "severity": "medium",
+            "impact": 12,
+        })
+
+    for weakness in (ai_analysis.get("weaknesses") or [])[:3]:
+        text = str(weakness).strip()
+        if text:
+            factors.append({
+                "category": "ai",
+                "label": "AI-identified weakness",
+                "detail": text,
+                "score": 0,
+                "severity": "medium",
+                "impact": 8,
+            })
+
+    factors.sort(key=lambda item: item.get("impact", 0), reverse=True)
+    return factors[:6]
+
+
+def _build_code_quality_breakdown(rule_scores: dict, features: dict) -> list[dict]:
+    breakdown = [
+        {
+            "category": "documentation",
+            "label": "Documentation & onboarding",
+            "score": round(float(rule_scores.get("documentation", 0) or 0), 1),
+            "detail": "README depth, examples, and setup clarity.",
+        },
+        {
+            "category": "stability",
+            "label": "Reliability & regression safety",
+            "score": round(float(rule_scores.get("stability", 0) or 0), 1),
+            "detail": "Issue closure, open issue load, and healthy maintenance signals.",
+        },
+        {
+            "category": "activity",
+            "label": "Delivery cadence",
+            "score": round(float(rule_scores.get("activity", 0) or 0), 1),
+            "detail": "Recent commits and sustained maintenance rhythm.",
+        },
+        {
+            "category": "collaboration",
+            "label": "Contributor workflow",
+            "score": round(float(rule_scores.get("collaboration", 0) or 0), 1),
+            "detail": "PR merge ratio and contributor participation.",
+        },
+        {
+            "category": "popularity",
+            "label": "Reach & adoption",
+            "score": round(float(rule_scores.get("popularity", 0) or 0), 1),
+            "detail": "Stars, forks, watchers, and overall discoverability.",
+        },
+    ]
+
+    if features.get("license_present"):
+        breakdown.append({
+            "category": "compliance",
+            "label": "License clarity",
+            "score": 100,
+            "detail": "An explicit license makes the project easier to reuse.",
+        })
+
+    return breakdown
 
 
 def _calculate_risk(final_score: float, rule_scores: dict, features: dict) -> dict:
@@ -225,37 +489,8 @@ async def analyze_repo(
         # -------------------------
         # RULE SCORING
         # -------------------------
-        commit_count = float(features.get("commit_count", 0) or 0)
-        recent_activity = float(features.get("recent_commits", 0) or 0)
-        contributors = float(features.get("contributors", 0) or 0)
-        pr_merge_ratio = float(features.get("pr_merged_ratio", 0) or 0)
-        issue_closure = float(features.get("issue_closure_rate", 0) or 0)
-        stars = float(features.get("stars", 0) or 0)
-        forks = float(features.get("forks", 0) or 0)
-        readme_length = float(features.get("readme_length", 0) or 0)
-        readme_keywords = float(features.get("readme_keyword_score", 0) or 0)
-        readme_sections = float(features.get("readme_section_count", 0) or 0)
-        has_readme_bonus = 20.0 if features.get("has_readme") else 0.0
-
-        rule_scores = {
-            "activity": _clamp_score(recent_activity * 0.7 + min(commit_count, 150) / 150 * 100 * 0.3),
-            "collaboration": _clamp_score((pr_merge_ratio * 100) * 0.7 + min(contributors, 20) / 20 * 100 * 0.3),
-            "documentation": _clamp_score(
-                has_readme_bonus
-                + min(readme_length, 5000) / 5000 * 35
-                + readme_keywords * 0.25
-                + min(readme_sections, 10) / 10 * 10
-                + (10 if features.get("description_length", 0) > 40 else 0)
-                + (5 if features.get("has_wiki") else 0)
-            ),
-            "stability": _clamp_score((issue_closure * 100) * 0.8 + (100 - min(float(features.get("open_issues_count", 0) or 0), 100)) * 0.2),
-            "popularity": _clamp_score(
-                min(stars, 10000) / 10000 * 55
-                + min(forks, 2500) / 2500 * 20
-                + min(float(features.get("subscribers_count", 0) or 0), 1500) / 1500 * 15
-                + min(float(features.get("watchers_count", 0) or 0), 5000) / 5000 * 10
-            ),
-        }
+        commit_dates = _parse_commit_dates(commits or [])
+        rule_scores = ScoringService.calculate_rule_scores(features, commit_dates)
 
         # -------------------------
         # AI SCORING
@@ -287,6 +522,10 @@ async def analyze_repo(
         ai_analysis["weaknesses"] = _dedupe_lines(ai_analysis.get("weaknesses", []) + rule_insights["weaknesses"])
         ai_analysis["recommendations"] = _dedupe_lines(ai_analysis.get("recommendations", []) + rule_insights["recommendations"], limit=10)
 
+        # Categorize recommendations by category and check if implemented
+        categorized_recommendations = _categorize_recommendations(ai_analysis["recommendations"], features)
+        ai_analysis["categorized_recommendations"] = categorized_recommendations
+
         # Fill tech stack from GitHub language meter when AI output is sparse.
         if not isinstance(ai_result.get("tech"), dict):
             ai_result["tech"] = {}
@@ -305,13 +544,19 @@ async def analyze_repo(
         # -------------------------
         hybrid = HybridService.combine_scores(
             rule_scores,
-            ai_result.get("scores", {})
+            ai_result.get("scores", {}),
+            ai_confidence=float(ai_result.get("tech", {}).get("confidence", 0.5) or 0.5),
+            feature_signal_quality=ScoringService.feature_signal_quality(features),
         )
 
         final_score = float(hybrid.get("overall_score", 0) or 0)
         risk = _calculate_risk(final_score, rule_scores, features)
         hybrid["grade"] = _grade_from_score(final_score)
         hybrid["risk"] = risk
+
+        historical = _build_historical_analysis(commits or [], final_score, rule_scores)
+        hurt_factors = _build_score_hurt_factors(rule_scores, features, ai_analysis)
+        code_quality_breakdown = _build_code_quality_breakdown(rule_scores, features)
 
         if not ai_analysis.get("verdict"):
             ai_analysis["verdict"] = (
@@ -338,6 +583,11 @@ async def analyze_repo(
             "rule_scores": rule_scores,
             "ai_analysis": ai_result,
             "final": hybrid,
+            "insights": {
+                "what_is_hurting_your_score": hurt_factors,
+                "code_quality_breakdown": code_quality_breakdown,
+                "historical_analysis": historical,
+            },
         }
 
         _ANALYSIS_CACHE[cache_key] = (now, response_payload)
@@ -347,9 +597,4 @@ async def analyze_repo(
         raise e
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))# docs: final polishing and cleanup at 2026-03-20 18:16:00
-# ui: add README parsing at 2026-03-20 11:47:00
-# feat: implement radar chart at 2026-03-21 21:29:00
-# docs: implement PR & issue scoring at 2026-03-25 13:54:00
-# feat: optimize API calls at 2026-04-05 16:58:00
-# perf: setup React frontend at 2026-04-14 14:56:00
+        raise HTTPException(status_code=500, detail=str(e))

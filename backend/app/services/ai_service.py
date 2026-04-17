@@ -34,7 +34,7 @@ class AIService:
         # Try direct parse
         try:
             return json.loads(text)
-        except:
+        except Exception:
             pass
 
         # Try extracting JSON using regex
@@ -68,12 +68,14 @@ LANGUAGE_METER:
 RULES:
 - Base every statement strictly on the provided FEATURES.
 - Use LANGUAGE_METER to infer the real tech stack when possible.
+- Use deterministic NLP signals from FEATURES (readme_word_count, readme_section_count, readme_keyword_score, readme_flesch_reading_ease) when judging documentation quality.
 - If has_readme is false, you may mention missing README.
 - If has_readme is true, do NOT claim README is missing.
 - If recent_commits is 70 or above, do NOT claim low or minimal recent activity.
 - Do not use markdown formatting markers like ** in output strings.
 - Keep strengths and weaknesses specific, measurable, and non-repetitive.
 - Ensure recommendations are concrete and prioritized.
+- Confidence should be conservative when evidence is sparse.
 
 RETURN:
 {{
@@ -107,7 +109,7 @@ RETURN:
                 },
             )
 
-            text = response.text
+            text = response.text or ""
 
             parsed = self.extract_json(text)
             stabilized = self._enforce_consistency(parsed, features)
@@ -196,11 +198,3 @@ RETURN:
 
         parsed["analysis"] = analysis
         return parsed
-# feat: maintenance frequency scoring @ 2026-03-27T17:47:00
-# feat: integrate Gemini AI @ 2026-03-31T11:35:00
-# feat: AI scoring for all categories @ 2026-04-01T13:29:00
-# feat: implement hybrid scoring (rule + AI) @ 2026-04-02T21:59:00
-# feat: NLP keyword extraction @ 2026-04-03T19:00:00
-# fix: handle AI JSON parsing errors @ 2026-04-04T10:15:00
-# feat: add AI insights component @ 2026-04-11T11:39:00# refactor: final polishing and cleanup at 2026-03-23 12:58:00
-# perf: add contribution graph at 2026-03-26 16:55:00

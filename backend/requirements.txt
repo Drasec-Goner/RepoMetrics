@@ -11,3 +11,5 @@ loguru
 sqlalchemy
 psycopg2-binary
 alembic
+google-genai
+python-jose[cryptography]
