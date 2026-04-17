@@ -8,6 +8,20 @@ const AuthCallback = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    document.title = "RepoMetrics | Signing In";
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+      const userParam = params.get("user");
+      const tokenParam = params.get("token");
+
+      // ✅ IMPORTANT: Stop if no params
+      if (!userParam || !tokenParam) {
+        return;
+      }
+
     const handleAuth = () => {
       try {
         logout();

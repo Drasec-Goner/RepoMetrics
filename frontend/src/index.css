@@ -4,8 +4,22 @@
 
 /* Global styles */
 body {
-  @apply bg-bgDark text-white;
+  @apply bg-bgDark text-white antialiased;
   font-family: 'Inter', sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(167, 139, 250, 0.10), transparent 24%),
+    linear-gradient(180deg, #020617 0%, #0f172a 48%, #111827 100%);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.35);
+  color: #fff;
 }
 
 @keyframes fade-in {

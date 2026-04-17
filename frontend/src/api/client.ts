@@ -22,7 +22,18 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (res) => res,
   (err) => {
-    console.error("API Error:", err);
+    // Log the actual error for debugging
+    if (err.response) {
+      console.error("API Error Response:", {
+        status: err.response.status,
+        data: err.response.data,
+        url: err.response.config?.url,
+      });
+    } else if (err.request) {
+      console.error("API Error Request:", err.request);
+    } else {
+      console.error("API Error:", err.message);
+    }
     return Promise.reject(err);
   }
 );
