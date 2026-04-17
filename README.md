@@ -2,6 +2,8 @@
 
 # RepoMetrics
 
+<img src="frontend/src/assets/icon.png" alt="RepoMetrics logo" width="170" />
+
 [![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)](#-tech-stack)
 [![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB?logo=react&logoColor=0b1020)](#-tech-stack)
 [![Language](https://img.shields.io/badge/Language-TypeScript%20%26%20Python-3b82f6)](#-tech-stack)
@@ -44,7 +46,7 @@ AI-powered GitHub repository analysis platform for quick, explainable quality ev
       <img src="frontend/src/assets/hero.png" alt="RepoMetrics dashboard preview" />
     </td>
     <td width="30%" align="center">
-      <img src="frontend/public/favicon.svg" alt="RepoMetrics icon" width="140" />
+      <img src="frontend/src/assets/icon.png" alt="RepoMetrics icon" width="140" />
       <br />
       <sub>App icon</sub>
     </td>
