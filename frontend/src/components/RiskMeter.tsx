@@ -1,3 +1,6 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTriangleExclamation, faShieldHeart } from "@fortawesome/free-solid-svg-icons";
+
 interface Props {
   score: number;
   riskScore?: number;
@@ -17,12 +20,20 @@ const RiskMeter = ({ score, riskScore, meaning, reasons = [] }: Props) => {
   const normalizedRiskScore = typeof riskScore === "number" ? riskScore : Math.max(0, Math.min(100, 100 - score));
 
   return (
-    <div className="bg-cardDark p-6 rounded-2xl space-y-3">
-      <h3 className="mb-2 font-medium">Risk Level</h3>
+    <div className="bg-cardDark/95 backdrop-blur-sm p-6 rounded-2xl space-y-3 border border-slate-700/70 shadow-lg">
+      <h3 className="mb-2 font-medium flex items-center gap-2">
+        <FontAwesomeIcon icon={faShieldHeart} className="text-cyan-300" /> Risk Level
+      </h3>
       <div className="flex items-center justify-between">
-        <p className="text-xl font-bold">{level}</p>
+        <p className="text-xl font-bold flex items-center gap-2">
+          <FontAwesomeIcon icon={faTriangleExclamation} className="text-amber-300" /> {level}
+        </p>
         <p className="text-sm text-gray-400">Risk Score: {normalizedRiskScore}</p>
       </div>
+
+      <p className="text-xs text-slate-400 leading-relaxed">
+        Lower risk score is better. It summarizes where delivery or maintainability problems are more likely to appear first.
+      </p>
 
       <p className="text-sm text-gray-300 leading-relaxed">
         {meaning || "Risk level indicates how likely maintainability or delivery issues are based on quality, activity, stability, and documentation signals."}

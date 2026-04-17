@@ -33,12 +33,43 @@ export interface AnalysisResponse {
       weaknesses: string[];
       recommendations: string[];
     };
+    categorized_recommendations?: Record<
+      string,
+      Array<{ text: string; status: "implemented" | "recommended" }>
+    >;
     tech:
       | Record<string, number>
       | {
           detected_stack?: string[];
           confidence?: number;
         };
+  };
+  insights?: {
+    what_is_hurting_your_score?: Array<{
+      category: string;
+      label: string;
+      detail: string;
+      score: number;
+      severity: "low" | "medium" | "high";
+      impact: number;
+    }>;
+    code_quality_breakdown?: Array<{
+      category: string;
+      label: string;
+      score: number;
+      detail: string;
+    }>;
+    historical_analysis?: {
+      trend: "improving" | "stable" | "declining";
+      summary: string;
+      timeline: Array<{
+        period: string;
+        commit_count: number;
+        activity_score: number;
+        projected_score: number;
+        grade: string;
+      }>;
+    };
   };
   final: {
     score?: number;

@@ -1,3 +1,6 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLayerGroup, faBolt } from "@fortawesome/free-solid-svg-icons";
+
 interface Props {
   tech:
     | Record<string, number>
@@ -62,14 +65,21 @@ const TechStack = ({ tech, githubLanguages = {}, primaryLanguage = "" }: Props) 
     .sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className="bg-cardDark p-6 rounded-2xl shadow-lg">
-      <h3 className="font-semibold mb-4">Tech Stack</h3>
+    <div className="bg-cardDark/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-slate-700/70">
+      <h3 className="font-semibold mb-4 flex items-center gap-2">
+        <FontAwesomeIcon icon={faLayerGroup} className="text-cyan-300" /> Tech Stack
+      </h3>
 
       {!shouldUseGithubFallback && typeof confidence === "number" && (
-        <p className="text-xs text-gray-400 mb-4">
+        <p className="text-xs text-gray-400 mb-4 flex items-center gap-2">
+          <FontAwesomeIcon icon={faBolt} className="text-violet-300" />
           Detection confidence: {formatPercent(confidence)}
         </p>
       )}
+
+      <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+        Bars show relative share after normalization to 100%. Confidence reflects certainty of stack detection, not code quality.
+      </p>
 
       {sortedEntries.length === 0 && (
         <p className="text-sm text-gray-400">No tech stack detected.</p>

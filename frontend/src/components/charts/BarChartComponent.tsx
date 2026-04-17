@@ -50,7 +50,7 @@ const BarChartComponent = ({ data, ruleScores = {}, aiScores = {} }: Props) => {
             <Legend wrapperStyle={{ color: "#cbd5e1", fontSize: 12 }} />
             <Bar dataKey="rule" name="Rule (60%)" fill="#22d3ee" radius={[4, 4, 0, 0]} />
             <Bar dataKey="ai" name="AI/NLP (40%)" fill="#a78bfa" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="final" name="Final" fill="#38bdf8" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="final" name="Final" fill="#f59e0b" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -61,7 +61,7 @@ const BarChartComponent = ({ data, ruleScores = {}, aiScores = {} }: Props) => {
             <p className="text-xs text-gray-400">{item.name}</p>
             <p className="text-sm text-cyan-300">Rule: {item.rule.toFixed(1)}</p>
             <p className="text-sm text-violet-300">AI: {item.ai.toFixed(1)}</p>
-            <p className="text-sm text-sky-300 font-semibold">Final: {item.final.toFixed(1)}</p>
+            <p className="text-sm text-amber-300 font-semibold">Final: {item.final.toFixed(1)}</p>
           </div>
         ))}
       </div>

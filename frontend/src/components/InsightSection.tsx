@@ -1,3 +1,6 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleInfo, faLightbulb, faTriangleExclamation, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+
 interface Props {
   title: string;
   items: string[];
@@ -50,8 +53,10 @@ const InsightSection = ({ title, items, type = "default" }: Props) => {
     ];
 
     return (
-      <div className="bg-cardDark p-6 rounded-2xl shadow-lg">
-        <h3 className="font-semibold mb-4">{title}</h3>
+      <div className="bg-cardDark/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-slate-700/70">
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <FontAwesomeIcon icon={faLightbulb} className="text-cyan-300" /> {title}
+        </h3>
 
         <div className="space-y-3">
           {items.map((item, index) => {
@@ -72,8 +77,14 @@ const InsightSection = ({ title, items, type = "default" }: Props) => {
   }
 
   return (
-    <div className="bg-cardDark p-6 rounded-2xl shadow-lg">
-      <h3 className="font-semibold mb-4">{title}</h3>
+    <div className="bg-cardDark/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-slate-700/70">
+      <h3 className="font-semibold mb-4 flex items-center gap-2">
+        <FontAwesomeIcon
+          icon={type === "good" ? faCircleCheck : type === "bad" ? faTriangleExclamation : faCircleInfo}
+          className={type === "good" ? "text-success" : type === "bad" ? "text-red-400" : "text-cyan-300"}
+        />
+        {title}
+      </h3>
 
       <ul className="space-y-2">
         {items.map((item, index) => (
