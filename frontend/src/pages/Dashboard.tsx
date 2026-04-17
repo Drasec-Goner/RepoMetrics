@@ -19,6 +19,7 @@ import ScoreExplanationCard from "../components/ScoreExplanationCard";
 import ImprovementGuide from "../components/ImprovementGuide";
 import AnalysisInsightsCard from "../components/AnalysisInsightsCard";
 import ReportExportSheet from "../components/ReportExportSheet";
+import FullScreenLoader from "../components/ui/FullScreenLoader";
 
 const gradeFromScore = (score: number) => {
   if (score >= 85) return "A";
@@ -179,6 +180,13 @@ const Dashboard = () => {
 
   return (
     <div className="relative overflow-hidden p-4 md:p-6 max-w-7xl mx-auto space-y-6">
+      {exportingPdf && (
+        <FullScreenLoader
+          title="Preparing your report"
+          subtitle="Rendering sections and building the PDF export..."
+        />
+      )}
+
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-[-8rem] top-[-8rem] h-80 w-80 rounded-full bg-cyan-500/10 blur-3xl" />
         <div className="absolute right-[-6rem] top-40 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
@@ -236,7 +244,11 @@ const Dashboard = () => {
           {repoSource === "saved" ? (
             <div className="space-y-2 animate-fade-in">
               {loadingRepos ? (
-                <p className="text-gray-400">Loading repositories...</p>
+                <FullScreenLoader
+                  fullScreen={false}
+                  title="Loading repositories"
+                  subtitle="Syncing your repositories from GitHub..."
+                />
               ) : repos.length === 0 ? (
                 <p className="text-gray-400 text-sm">No repositories found.</p>
               ) : (

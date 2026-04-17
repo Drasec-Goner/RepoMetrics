@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout, saveAuth } from "../utils/auth";
 import type { User } from "../types";
+import FullScreenLoader from "../components/ui/FullScreenLoader";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -50,24 +51,23 @@ const AuthCallback = () => {
     handleAuth();
   }, [navigate]);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      {error ? (
-        <div className="text-center">
-          <p className="text-danger mb-4">{error}</p>
-          <button
-            onClick={() => navigate("/")}
-            className="bg-primary px-4 py-2 rounded-lg"
-          >
-            Go Back
-          </button>
-        </div>
-      ) : (
-        <div className="animate-pulse text-gray-400">
-          Authenticating...
-        </div>
-      )}
+  return error ? (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="text-center rounded-2xl border border-red-500/30 bg-slate-900/80 p-6 max-w-md w-full">
+        <p className="text-danger mb-4">{error}</p>
+        <button
+          onClick={() => navigate("/")}
+          className="bg-primary px-4 py-2 rounded-lg"
+        >
+          Go Back
+        </button>
+      </div>
     </div>
+  ) : (
+    <FullScreenLoader
+      title="Authenticating with GitHub"
+      subtitle="Securing your session and preparing your dashboard..."
+    />
   );
 };
 

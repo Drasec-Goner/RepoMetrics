@@ -10,7 +10,10 @@ const Landing = () => {
   }, []);
 
   return (
-    <div>
+    <div className="relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(34,211,238,0.16),transparent_30%),radial-gradient(circle_at_80%_25%,rgba(99,102,241,0.16),transparent_28%),radial-gradient(circle_at_50%_85%,rgba(56,189,248,0.08),transparent_32%)]" />
+      </div>
       <Navbar />
       <Hero />
       <Features />

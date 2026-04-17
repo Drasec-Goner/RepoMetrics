@@ -54,7 +54,7 @@ AI-powered GitHub repository analysis platform for quick, explainable quality ev
 <details>
   <summary><strong>Want to add more screenshots?</strong></summary>
 
-  Add images under `frontend/src/assets` or a top-level `docs/` folder, then link them in this section.
+Add images under `frontend/src/assets` or a top-level `docs/` folder, then link them in this section.
 
 </details>
 
@@ -98,6 +98,7 @@ python run.py
 ```
 
 Backend URLs:
+
 - API: http://localhost:8000
 - Swagger: http://localhost:8000/docs
 
@@ -110,6 +111,7 @@ npm run dev
 ```
 
 Frontend URL:
+
 - http://localhost:5173
 
 ## Environment Setup
@@ -160,10 +162,10 @@ VITE_BACKEND_URL=http://localhost:8000
 
 ## Project Docs
 
-| Area | Guide |
-|---|---|
-| Backend setup and internals | [backend/README.md](backend/README.md) |
-| Frontend setup and UI flow | [frontend/README.md](frontend/README.md) |
+| Area                        | Guide                                    |
+| --------------------------- | ---------------------------------------- |
+| Backend setup and internals | [backend/README.md](backend/README.md)   |
+| Frontend setup and UI flow  | [frontend/README.md](frontend/README.md) |
 
 ## Security Note
 
