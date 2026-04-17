@@ -1,0 +1,36 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  background: #020617;
+}
+
+.navbar button {
+  padding: 8px 12px;
+}
+
+.risk-bar {
+  height: 12px;
+  background: #334155;
+  border-radius: 6px;
+}
+
+.risk-fill {
+  height: 100%;
+  border-radius: 6px;
+}
+
+.landing {
+  text-align: center;
+  margin-top: 100px;
+}
+
+.landing h1 {
+  font-size: 48px;
+}
+
+.landing button {
+  padding: 12px 20px;
+  margin-top: 20px;
+  font-size: 16px;
+}
