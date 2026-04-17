@@ -1,277 +1,183 @@
-# 🚀 RepoMetrics – AI-Powered GitHub Repository Analyzer
+# RepoMetrics
 
-RepoMetrics is an intelligent GitHub repository analysis platform that combines **rule-based scoring** with **AI-powered insights** to evaluate the quality, health, and maintainability of any repository.
+AI-powered GitHub repository analysis platform.
 
-It provides **data-driven metrics + LLM-based analysis** to help developers, recruiters, and teams make informed decisions.
+RepoMetrics combines deterministic engineering metrics with AI interpretation to score repository health and explain where quality improves or degrades.
 
----
+## Why RepoMetrics
 
-## 🌟 Features
+Choosing a repository is usually manual and subjective. RepoMetrics gives you:
 
-### 📊 Hybrid Scoring System
+- A consistent scoring framework across key categories.
+- AI-assisted context on strengths, weaknesses, and practical actions.
+- Visual explanations (charts, risk, historical trend).
+- Exportable report output for sharing.
 
-* Rule-based + AI scoring combined
-* Accurate and explainable evaluation
-* Final grade + score breakdown
+## Key Features
 
-### 📈 Metrics Analyzed
+- Hybrid scoring engine (rule-based + AI blend).
+- Category scores for:
+  - Activity
+  - Collaboration
+  - Documentation
+  - Stability
+  - Popularity
+- Historical analysis with trend graph and projected score.
+- Improvement Guide with impact tiers and actionable suggestions.
+- GitHub OAuth login and repository listing.
+- Analyze owned repositories and public repositories.
+- PDF export for analysis reports.
 
-#### 🔹 Activity Metrics
+## Architecture
 
-* Commits per month
-* Recent activity score
-* Maintenance frequency
-* Commit consistency
+- Backend: FastAPI + SQLAlchemy + PostgreSQL + Gemini
+- Frontend: React + TypeScript + Vite + Tailwind + Recharts
 
-#### 🔹 Collaboration Metrics
+High-level flow:
 
-* Contributor distribution
-* PR merge ratio
-* Issue closure rate
-* Contributor continuity
+1. User authenticates via GitHub OAuth.
+2. Frontend calls backend APIs with JWT.
+3. Backend fetches GitHub repository signals.
+4. Feature extraction and rule scoring run.
+5. AI analysis is generated and validated.
+6. Hybrid scoring combines rule and AI signals.
+7. Frontend renders insights and visualizations.
 
-#### 🔹 Popularity Metrics
+## Repository Structure
 
-* Stars count
-* Fork ratio
-* Community engagement
-
-#### 🔹 Documentation Metrics
-
-* README length
-* Key section detection
-* Documentation completeness
-
-#### 🔹 Stability Metrics
-
-* Issue resolution
-* Maintenance trends
-* Risk indicators
-
----
-
-## 🤖 AI Analysis (Gemini)
-
-RepoMetrics uses AI to perform:
-
-* Advanced keyword extraction
-* Technology stack detection
-* Framework identification
-* Documentation quality analysis
-
-### 🧠 AI Outputs
-
-* Professional summary
-* Strength analysis
-* Weakness identification
-* Actionable recommendations
-
----
-
-## 📊 Visualizations
-
-* 📉 Score Breakdown Charts
-* 📡 Radar Graph (5 categories)
-* 📊 Metric Contribution Graph
-* 📈 Contribution Activity Graph
-* ⚠️ Risk Meter
-* 🧪 Technology Confidence Bars
-
----
-
-## 🔐 Authentication
-
-* GitHub OAuth Login
-* Fetch user repositories
-* Analyze private repos (with token)
-
----
-
-## 🏗️ Tech Stack
-
-### Backend
-
-* FastAPI
-* PostgreSQL
-* SQLAlchemy
-* GitHub REST API
-* Google Gemini API
-
-### Frontend
-
-* React (TypeScript)
-* Vite
-* Recharts
-* Tailwind CSS
-
----
-
-## 📂 Project Structure
-
-```
 RepoMetrics/
-│
-├── backend/
-│   ├── app/
-│   │   ├── api/
-│   │   ├── services/
-│   │   ├── db/
-│   │   └── core/
-│   ├── run.py
-│   └── README.md
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── api/
-│   └── README.md
-│
-└── repometrics_commits.py
-```
 
----
+- backend/
+  - FastAPI service, scoring pipeline, auth, data layer
+- frontend/
+  - React dashboard, charts, insight cards, PDF export
+- README.md
 
-## ⚙️ Environment Variables
+## Quick Start
 
-### Backend `.env`
+### 1) Clone and open
 
-```
-GEMINI_API_KEY=your_key
-GITHUB_CLIENT_ID=your_id
-GITHUB_CLIENT_SECRET=your_secret
-GITHUB_REDIRECT_URI=http://localhost:8000/auth/callback
+1. git clone https://github.com/Drasec-Goner/RepoMetrics.git
+2. cd RepoMetrics
 
+### 2) Backend setup
+
+1. cd backend
+2. python -m venv .venv
+3. .venv\Scripts\activate
+4. pip install -r requirements.txt
+5. Create .env using Backend Environment section below
+6. python run.py
+
+Backend URLs:
+
+- API: http://localhost:8000
+- Swagger: http://localhost:8000/docs
+
+### 3) Frontend setup
+
+1. cd ../frontend
+2. npm install
+3. Create .env with VITE_API_BASE_URL=http://localhost:8000/api
+4. npm run dev
+
+Frontend URL:
+
+- http://localhost:5173
+
+## Backend Environment
+
+Create backend/.env:
+
+```dotenv
+# App Configuration
 APP_NAME=RepoMetrics
 ENVIRONMENT=development
-DEBUG=True
-
-GITHUB_API_BASE=https://api.github.com
+DEBUG=False
 PORT=8000
+FRONTEND_URL=http://localhost:5173
+
+# GitHub API
+GITHUB_API_BASE=https://api.github.com
+GITHUB_TOKEN=
+
+# GitHub OAuth
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+GITHUB_REDIRECT_URI=http://localhost:8000/auth/callback
+
+# Gemini AI
+GEMINI_API_KEY=your_gemini_api_key
+
+# Database
+DATABASE_URL=postgresql://postgres:password@localhost:5432/repometrics
+
+# Security
+SECRET_KEY=replace_with_a_long_random_secret
 ```
 
----
+Security note:
+- Never commit real credentials/tokens to git.
+- If any key/token was exposed, rotate it immediately.
 
-## 🚀 Running Locally
+## Frontend Environment
 
-### 1️⃣ Backend
+Create frontend/.env:
 
-```
-cd backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-python run.py
-```
-
-Backend runs on:
-
-```
-http://localhost:8000
+```dotenv
+VITE_API_BASE_URL=http://localhost:8000/api
+VITE_BACKEND_URL=http://localhost:8000
 ```
 
----
+## API Endpoints (Main)
 
-### 2️⃣ Frontend
+- GET /api/health
+- GET /auth/login
+- GET /auth/callback
+- GET /api/user/repos
+- GET /api/analyze/{owner}/{repo}
 
-```
-cd frontend
-npm install
-npm run dev
-```
+## Understanding the Output
 
-Frontend runs on:
+- Rule Score:
+  - Derived from measurable repository signals (commits, issues, docs, popularity, etc.).
 
-```
-http://localhost:5173
-```
+- AI Score:
+  - Contextual interpretation from repository features and documentation language.
 
----
+- Final Score:
+  - Weighted blend of rule + AI with confidence-aware balancing.
 
-## 🔄 Workflow
+- Projected Score (Historical):
+  - Momentum-oriented estimate combining current score and recent activity trend.
+  - Useful for direction; not a guaranteed future score.
 
-1. Login via GitHub OAuth
-2. Select repository (or manually enter)
-3. Fetch repo data via GitHub API
-4. Extract features
-5. Compute rule-based scores
-6. Generate AI insights
-7. Combine into hybrid score
-8. Display analytics dashboard
+## Troubleshooting
 
----
+- Backend does not start:
+  - Check DATABASE_URL and that PostgreSQL is running.
 
-## 🧠 Scoring System
+- Login callback fails:
+  - Ensure GITHUB_REDIRECT_URI in .env matches your GitHub OAuth app callback exactly.
 
-### Categories
+- CORS/auth problems:
+  - Verify FRONTEND_URL matches your actual frontend origin.
 
-* Activity Score
-* Collaboration Score
-* Documentation Score
-* Stability Score
-* Popularity Score
+- Frontend cannot reach backend:
+  - Check VITE_API_BASE_URL value and backend availability.
 
-### Final Score
+## Documentation Index
 
-```
-Final Score = Hybrid (Rule Score + AI Score)
-```
+- Backend setup and internals: backend/README.md
+- Frontend setup and UI flow: frontend/README.md
 
----
+## Contributing
 
-## 📅 Development Timeline
+1. Create a branch.
+2. Make focused changes.
+3. Run backend and frontend locally.
+4. Open a pull request with a clear summary.
 
-This project was developed incrementally:
+## License
 
-* **Mar 20–25** → Backend setup + GitHub API integration
-* **Mar 26–30** → Feature extraction & scoring engine
-* **Apr 1–5** → AI integration (Gemini)
-* **Apr 6–10** → Frontend dashboard & charts
-* **Apr 11–15** → OAuth, polishing, deployment
-
----
-
-## 🚀 Deployment
-
-### Backend
-
-* Render / Railway
-
-### Frontend
-
-* Vercel / Netlify
-
----
-
-## 🎯 Future Improvements
-
-* Repository comparison feature
-* Resume integration (for recruiters)
-* GitHub organization analytics
-* ML-based anomaly detection
-* Team performance dashboards
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-Feel free to open issues or submit pull requests.
-
----
-
-## 📜 License
-
-MIT License
-
----
-
-## 👨‍💻 Author
-
-**Soumya Manna**
-Computer Science Engineer
-AI + Full Stack Developer
-
----
-
-⭐ If you like this project, give it a star!
+MIT
