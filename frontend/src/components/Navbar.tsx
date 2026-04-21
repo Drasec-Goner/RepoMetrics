@@ -1,6 +1,25 @@
 import Container from "./ui/Container";
 
 const Navbar = () => {
+  const scrollToSection = (id: string, offset = 28) => {
+    const target = document.getElementById(id);
+    if (!target) return;
+
+    const y = target.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  };
+
+  const scrollToFeaturesCheese = () => {
+    const target = document.getElementById("features");
+    if (!target) return;
+
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    window.setTimeout(() => {
+      window.scrollBy({ top: 520, behavior: "smooth" });
+    }, 250);
+  };
+
   return (
     <div className="sticky top-0 z-40 border-b border-cyan-400/20 bg-slate-950/60 backdrop-blur-xl">
       <Container>
@@ -18,9 +37,27 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-2 text-xs text-slate-300">
-            <a href="#features" className="rounded-full border border-slate-700/80 px-3 py-1.5 hover:border-cyan-400/50 hover:text-cyan-200 transition">Features</a>
-            <a href="#how-it-works" className="rounded-full border border-slate-700/80 px-3 py-1.5 hover:border-cyan-400/50 hover:text-cyan-200 transition">How it works</a>
-            <a href="#why-repometrics" className="rounded-full border border-slate-700/80 px-3 py-1.5 hover:border-cyan-400/50 hover:text-cyan-200 transition">Why this helps</a>
+            <button
+              type="button"
+              onClick={scrollToFeaturesCheese}
+              className="rounded-full border border-slate-700/80 px-3 py-1.5 hover:border-cyan-400/50 hover:text-cyan-200 transition"
+            >
+              Features
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection("how-it-works")}
+              className="rounded-full border border-slate-700/80 px-3 py-1.5 hover:border-cyan-400/50 hover:text-cyan-200 transition"
+            >
+              How it works
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection("why-repometrics")}
+              className="rounded-full border border-slate-700/80 px-3 py-1.5 hover:border-cyan-400/50 hover:text-cyan-200 transition"
+            >
+              Why this helps
+            </button>
           </div>
         </div>
       </Container>
