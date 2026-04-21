@@ -43,7 +43,7 @@ AI-powered GitHub repository analysis platform for quick, explainable quality ev
 <table>
   <tr>
     <td width="70%">
-      <img src="frontend/src/assets/hero.png" alt="RepoMetrics dashboard preview" />
+      <img src="frontend/src/assets/dashboard.png" alt="RepoMetrics dashboard preview" />
     </td>
     <td width="30%" align="center">
       <img src="frontend/src/assets/icon.png" alt="RepoMetrics icon" width="140" />
