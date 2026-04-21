@@ -62,7 +62,7 @@ async def github_callback(code: str, db: Session = Depends(get_db)):
     except ValueError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
-    frontend_url = settings.FRONTEND_URL.rstrip("/")
+    frontend_url = settings.frontend_redirect_url
 
     # Minimal user payload
     user_payload = {

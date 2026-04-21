@@ -36,6 +36,7 @@ ENVIRONMENT=development
 DEBUG=False
 PORT=8000
 FRONTEND_URL=http://localhost:5173
+FRONTEND_URLS=https://your-frontend-domain.com,http://localhost:5173
 
 # GitHub API
 GITHUB_API_BASE=https://api.github.com
@@ -60,6 +61,7 @@ Notes:
 
 - DATABASE_URL is required. App startup will fail without it.
 - FRONTEND_URL must match your frontend dev server URL for CORS and auth redirect.
+- FRONTEND_URLS is optional and allows multiple CORS origins (comma-separated).
 - FRONTEND_URL examples:
   - Local: http://localhost:5173
   - Deployed: https://your-frontend-domain.com

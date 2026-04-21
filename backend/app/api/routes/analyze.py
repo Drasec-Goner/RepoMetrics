@@ -504,9 +504,8 @@ async def analyze_repo(
         # AI SCORING
         # -------------------------
         try:
-            user = None
-            token = settings.GITHUB_TOKEN
-            cache_identity = "public-token" if token else "public-anon"
+            ai_result = ai_service.analyze_repository(features, languages)
+        except Exception:
             ai_result = {"error": "AI failed"}
 
         # Ensure AI scores are always present for charting and weighted merge.
@@ -527,7 +526,6 @@ async def analyze_repo(
         ai_analysis.setdefault("recommendations", [])
 
         rule_insights = _rule_based_insights(features, rule_scores)
-                cache_identity = f"user:{user.id}"
         ai_analysis["weaknesses"] = _dedupe_lines(ai_analysis.get("weaknesses", []) + rule_insights["weaknesses"])
         ai_analysis["recommendations"] = _dedupe_lines(ai_analysis.get("recommendations", []) + rule_insights["recommendations"], limit=10)
 

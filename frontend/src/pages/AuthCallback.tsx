@@ -15,22 +15,17 @@ const AuthCallback = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
-      const userParam = params.get("user");
-      const tokenParam = params.get("token");
+    const userParam = params.get("user");
+    const tokenParam = params.get("token");
 
-      // ✅ IMPORTANT: Stop if no params
-      if (!userParam || !tokenParam) {
-        return;
-      }
+    if (!userParam || !tokenParam) {
+      setError("Missing authentication callback data. Please sign in again.");
+      return;
+    }
 
     const handleAuth = () => {
       try {
         logout();
-
-        const params = new URLSearchParams(window.location.search);
-
-        const userParam = params.get("user");
-        const tokenParam = params.get("token");
 
         // Require both user and token to avoid saving incomplete auth state.
         if (tokenParam && userParam) {
