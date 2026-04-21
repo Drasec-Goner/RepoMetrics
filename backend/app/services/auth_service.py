@@ -61,6 +61,3 @@ class AuthService:
         db.refresh(user)
 
         return user
-# feat: add auth routes @ 2026-04-05T18:27:00
-# fix: OAuth callback issues @ 2026-04-07T21:07:00
-# feat: repo selector dropdown (OAuth) @ 2026-04-12T21:04:00

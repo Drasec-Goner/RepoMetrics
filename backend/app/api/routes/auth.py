@@ -21,6 +21,7 @@ def github_login():
         f"?client_id={settings.GITHUB_CLIENT_ID}"
         f"&redirect_uri={settings.GITHUB_REDIRECT_URI}"
         "&scope=repo user"
+        "&prompt=select_account"
     )
     return RedirectResponse(github_url)
 
