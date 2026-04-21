@@ -20,6 +20,7 @@ AI-powered GitHub repository analysis platform for quick, explainable quality ev
 ## Table of Contents
 
 - [Highlights](#-highlights)
+- [Live Deployment](#-live-deployment)
 - [Screenshots](#-screenshots)
 - [How It Works](#-how-it-works)
 - [Quick Start](#-quick-start)
@@ -38,27 +39,39 @@ AI-powered GitHub repository analysis platform for quick, explainable quality ev
 - Improvement guide with prioritized actions
 - PDF export for sharing analysis reports
 
+## Live Deployment
+
+- Frontend (Vercel): https://repometrics-ai.vercel.app
+- Backend API (Render): https://repometrics.onrender.com
+- API Docs (Swagger): https://repometrics.onrender.com/docs
+- OAuth callback endpoint: https://repometrics.onrender.com/auth/callback
+
+Use the frontend URL for user access. OAuth is completed by the backend callback endpoint.
+
 ## Screenshots
 
 <table>
   <tr>
-    <td width="70%">
-      <img src="frontend/src/assets/dashboard.png" alt="RepoMetrics dashboard preview" />
+    <td width="100%">
+      <img src="frontend/src/assets/dashboard.png" alt="Dashboard with repository selection and score summary" />
     </td>
-    <td width="30%" align="center">
-      <img src="frontend/src/assets/icon.png" alt="RepoMetrics icon" width="140" />
-      <br />
-      <sub>App icon</sub>
+  </tr>
+  <tr>
+    <td width="100%">
+      <img src="frontend/src/assets/analysis1.png" alt="Score comparison radar chart and category breakdown" />
+    </td>
+  </tr>
+  <tr>
+    <td width="100%">
+      <img src="frontend/src/assets/analysis-charts.png" alt="Category table and weighted scoring details" />
+    </td>
+  </tr>
+  <tr>
+    <td width="100%">
+      <img src="frontend/src/assets/analysis-deep.png" alt="Risk level and deep dive analysis section" />
     </td>
   </tr>
 </table>
-
-<details>
-  <summary><strong>Want to add more screenshots?</strong></summary>
-
-Add images under `frontend/src/assets` or a top-level `docs/` folder, then link them in this section.
-
-</details>
 
 ## How It Works
 
