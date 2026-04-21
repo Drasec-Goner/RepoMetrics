@@ -1,4 +1,8 @@
 {
+  "name": "repometrics-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Workspace-level dependencies for RepoMetrics",
   "dependencies": {
     "recharts": "^3.8.1"
   }
