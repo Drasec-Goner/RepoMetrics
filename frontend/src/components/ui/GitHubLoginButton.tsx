@@ -2,7 +2,11 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCodeBranch, faSpinner } from "@fortawesome/free-solid-svg-icons";
 
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL || "http://localhost:8000").replace(/\/+$/, "");
+const DEFAULT_BACKEND_URL = import.meta.env.DEV
+  ? "http://localhost:8000"
+  : "https://repometrics.onrender.com";
+
+const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL || DEFAULT_BACKEND_URL).replace(/\/+$/, "");
 
 interface Props {
   className?: string;

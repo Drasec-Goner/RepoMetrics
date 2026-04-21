@@ -44,7 +44,7 @@ GITHUB_TOKEN=
 # GitHub OAuth
 GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
-GITHUB_REDIRECT_URI=http://localhost:8000/auth/callback
+GITHUB_REDIRECT_URI=your_backend_auth_callback_url
 
 # Gemini AI
 GEMINI_API_KEY=your_gemini_api_key
@@ -60,6 +60,16 @@ Notes:
 
 - DATABASE_URL is required. App startup will fail without it.
 - FRONTEND_URL must match your frontend dev server URL for CORS and auth redirect.
+- FRONTEND_URL examples:
+  - Local: http://localhost:5173
+  - Deployed: https://your-frontend-domain.com
+- GITHUB_REDIRECT_URI format:
+  - Local: http://localhost:8000/auth/callback
+  - Deployed: https://your-backend-domain.com/auth/callback
+- GITHUB_TOKEN is optional:
+  - Used as a fallback token for anonymous `/api/analyze/{owner}/{repo}` requests.
+  - Helps avoid GitHub API rate-limit failures for public users who are not logged in.
+  - Logged-in users still use their own OAuth access token first.
 - SECRET_KEY is required for JWT token generation.
 - Never commit real secrets in .env files.
 

@@ -30,15 +30,26 @@ React + TypeScript + Vite dashboard for visualizing repository health, scores, r
 Create frontend .env with:
 
 ```dotenv
-VITE_API_BASE_URL=http://localhost:8000/api
-VITE_BACKEND_URL=http://localhost:8000
+VITE_API_BASE_URL=your_backend_api_base_url
+VITE_BACKEND_URL=your_backend_base_url
 ```
 
 Notes:
 
-- The frontend client defaults to http://localhost:8000/api if this variable is missing.
+- Set these to your backend deployment URL (or localhost during local development).
 - VITE_BACKEND_URL is useful for backend-origin links and callback URL helpers.
 - Keep trailing slash optional; app normalizes it.
+- URL format examples:
+  - VITE_API_BASE_URL:
+    - Local: http://localhost:8000/api
+    - Deployed: https://your-backend-domain.com/api
+  - VITE_BACKEND_URL:
+    - Local: http://localhost:8000
+    - Deployed: https://your-backend-domain.com
+  - Login redirect URL used by the button:
+    - {VITE_BACKEND_URL}/api/auth/login
+  - OAuth callback URL configured in GitHub app:
+    - {backend-domain}/auth/callback
 
 ## Installation
 

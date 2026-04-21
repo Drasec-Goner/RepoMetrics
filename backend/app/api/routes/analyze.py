@@ -11,6 +11,7 @@ from app.services.hybrid_service import HybridService
 from app.db.database import get_db
 from app.db import models
 from app.core.security import decode_access_token
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -428,8 +429,9 @@ async def analyze_repo(
 ):
     try:
         # -------------------------
-        # USER TOKEN
+        # TOKEN RESOLUTION
         # -------------------------
+        user = None
         token = None
 
         if authorization:
@@ -452,8 +454,14 @@ async def analyze_repo(
                 raise HTTPException(status_code=404, detail="User not found")
 
             token = user.access_token
+        else:
+            # Optional app-level token used for anonymous/public analysis to reduce rate-limit failures.
+            token = settings.GITHUB_TOKEN
 
-        cache_identity = f"user:{user.id}" if authorization and 'user' in locals() else "public"
+        if user:
+            cache_identity = f"user:{user.id}"
+        else:
+            cache_identity = "public-token" if token else "public-anon"
         cache_key = f"{cache_identity}:{owner}/{repo}".lower()
         cached = _ANALYSIS_CACHE.get(cache_key)
         now = datetime.utcnow()
@@ -496,8 +504,9 @@ async def analyze_repo(
         # AI SCORING
         # -------------------------
         try:
-            ai_result = ai_service.analyze_repository(features, languages)
-        except Exception:
+            user = None
+            token = settings.GITHUB_TOKEN
+            cache_identity = "public-token" if token else "public-anon"
             ai_result = {"error": "AI failed"}
 
         # Ensure AI scores are always present for charting and weighted merge.
@@ -518,7 +527,7 @@ async def analyze_repo(
         ai_analysis.setdefault("recommendations", [])
 
         rule_insights = _rule_based_insights(features, rule_scores)
-        ai_analysis["strengths"] = _dedupe_lines(ai_analysis.get("strengths", []) + rule_insights["strengths"])
+                cache_identity = f"user:{user.id}"
         ai_analysis["weaknesses"] = _dedupe_lines(ai_analysis.get("weaknesses", []) + rule_insights["weaknesses"])
         ai_analysis["recommendations"] = _dedupe_lines(ai_analysis.get("recommendations", []) + rule_insights["recommendations"], limit=10)
 

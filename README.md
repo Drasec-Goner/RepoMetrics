@@ -135,7 +135,7 @@ GITHUB_TOKEN=
 # GitHub OAuth
 GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
-GITHUB_REDIRECT_URI=http://localhost:8000/auth/callback
+GITHUB_REDIRECT_URI=https://repometrics.onrender.com/auth/callback
 
 # Gemini AI
 GEMINI_API_KEY=your_gemini_api_key
@@ -150,9 +150,14 @@ SECRET_KEY=replace_with_a_long_random_secret
 ### frontend/.env
 
 ```dotenv
-VITE_API_BASE_URL=http://localhost:8000/api
-VITE_BACKEND_URL=http://localhost:8000
+VITE_API_BASE_URL=https://repometrics.onrender.com/api
+VITE_BACKEND_URL=https://repometrics.onrender.com
 ```
+
+Notes:
+
+- `GITHUB_TOKEN` is optional and is used as a fallback for anonymous analysis requests to reduce GitHub API rate-limit errors.
+- Logged-in users use their own GitHub OAuth token for analysis and repo access.
 
 ## API Surface
 

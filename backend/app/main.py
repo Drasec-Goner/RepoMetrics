@@ -26,6 +26,11 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(auth.router)
 
 
+@app.get("/")
+def home():
+    return {"message": "RepoMetrics API is running successfully."}
+
+
 
 @app.on_event("startup")
 async def startup_event():

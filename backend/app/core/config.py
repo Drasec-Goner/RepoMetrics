@@ -19,7 +19,9 @@ class Settings:
     # GitHub OAuth
     GITHUB_CLIENT_ID: str | None = os.getenv("GITHUB_CLIENT_ID")
     GITHUB_CLIENT_SECRET: str | None = os.getenv("GITHUB_CLIENT_SECRET")
-    GITHUB_REDIRECT_URI: str | None = os.getenv("GITHUB_REDIRECT_URI")
+    GITHUB_REDIRECT_URI: str = os.getenv(
+        "GITHUB_REDIRECT_URI", "https://repometrics.onrender.com/auth/callback"
+    )
 
     # Gemini AI
     GEMINI_API_KEY: str | None = os.getenv("GEMINI_API_KEY")
