@@ -53,3 +53,6 @@ repometrics_commits.py
 
 # Shell scripts
 *.sh
+
+# Documentation
+Documents/
