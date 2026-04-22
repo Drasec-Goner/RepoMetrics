@@ -4,13 +4,69 @@ import json
 import re
 import hashlib
 import copy
+import random
+import time
 
 
 class AIService:
 
+    _MODEL_CANDIDATES = ("gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash")
+    _MAX_RETRIES = 3
+    _BASE_BACKOFF_SECONDS = 1.2
+    _RATE_LIMIT_COOLDOWN_SECONDS = 60
+
     def __init__(self):
         self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
         self._response_cache: dict[str, dict] = {}
+        self._cooldown_until = 0.0
+
+    @staticmethod
+    def _looks_like_rate_limit_error(error: Exception) -> bool:
+        text = str(error).lower()
+        return (
+            "429" in text
+            or "rate limit" in text
+            or "too many requests" in text
+            or "quota" in text
+            or "resource_exhausted" in text
+        )
+
+    def _request_ai_with_retries(self, prompt: str):
+        now = time.time()
+        if now < self._cooldown_until:
+            wait_for = int(self._cooldown_until - now)
+            raise RuntimeError(f"Gemini temporarily rate-limited. Retry after {wait_for}s.")
+
+        last_error: Exception | None = None
+
+        for model_name in self._MODEL_CANDIDATES:
+            for attempt in range(self._MAX_RETRIES):
+                try:
+                    return self.client.models.generate_content(
+                        model=model_name,
+                        contents=prompt,
+                        config={
+                            "temperature": 0,
+                        },
+                    )
+                except Exception as error:
+                    last_error = error
+                    if self._looks_like_rate_limit_error(error):
+                        is_last_attempt = attempt == self._MAX_RETRIES - 1
+                        if is_last_attempt:
+                            break
+
+                        backoff = (self._BASE_BACKOFF_SECONDS * (2 ** attempt)) + random.uniform(0.0, 0.4)
+                        time.sleep(backoff)
+                        continue
+
+                    # Non rate-limit errors should move to next model immediately.
+                    break
+
+        if last_error and self._looks_like_rate_limit_error(last_error):
+            self._cooldown_until = time.time() + self._RATE_LIMIT_COOLDOWN_SECONDS
+
+        raise RuntimeError(str(last_error) if last_error else "Gemini request failed")
 
     def _make_cache_key(self, features: dict, languages: dict) -> str:
         payload = {
@@ -101,13 +157,7 @@ RETURN:
 """
 
         try:
-            response = self.client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt,
-                config={
-                    "temperature": 0,
-                },
-            )
+            response = self._request_ai_with_retries(prompt)
 
             text = response.text or ""
 

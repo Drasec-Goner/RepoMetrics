@@ -513,27 +513,10 @@ async def analyze_repo(
         # Ensure AI scores are always present for charting and weighted merge.
         if not isinstance(ai_result.get("scores"), dict):
             ai_result["scores"] = {}
-        ai_score_sources: dict[str, str] = {}
-        ai_model_scores = 0
         for category, value in rule_scores.items():
             ai_score = ai_result["scores"].get(category)
             if not isinstance(ai_score, (int, float)):
                 ai_result["scores"][category] = value
-                ai_score_sources[category] = "fallback_rule"
-            else:
-                ai_model_scores += 1
-                ai_score_sources[category] = "model"
-
-        total_categories = max(len(rule_scores), 1)
-        ai_score_coverage = round(ai_model_scores / total_categories, 3)
-
-        ai_result["meta"] = {
-            "score_source": "model" if ai_score_coverage >= 1.0 else "fallback",
-            "score_coverage": ai_score_coverage,
-            "score_sources": ai_score_sources,
-            "used_fallback": ai_score_coverage < 1.0,
-            "error": ai_result.get("error"),
-        }
 
         # Merge deterministic rule-based insights to reduce hallucinations.
         if not isinstance(ai_result.get("analysis"), dict):
@@ -574,7 +557,6 @@ async def analyze_repo(
             ai_result.get("scores", {}),
             ai_confidence=float(ai_result.get("tech", {}).get("confidence", 0.5) or 0.5),
             feature_signal_quality=ScoringService.feature_signal_quality(features),
-            ai_score_coverage=ai_score_coverage,
         )
 
         final_score = float(hybrid.get("overall_score", 0) or 0)
