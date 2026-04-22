@@ -14,6 +14,7 @@ class AIService:
     _MAX_RETRIES = 3
     _BASE_BACKOFF_SECONDS = 1.2
     _RATE_LIMIT_COOLDOWN_SECONDS = 60
+    _SCORE_KEYS = ("activity", "collaboration", "documentation", "stability", "popularity")
 
     def __init__(self):
         self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
@@ -132,6 +133,7 @@ RULES:
 - Keep strengths and weaknesses specific, measurable, and non-repetitive.
 - Ensure recommendations are concrete and prioritized.
 - Confidence should be conservative when evidence is sparse.
+- Score values in `scores` must be numeric and on a 0-100 scale.
 
 RETURN:
 {{
@@ -162,6 +164,7 @@ RETURN:
             text = response.text or ""
 
             parsed = self.extract_json(text)
+            parsed = self._normalize_ai_scores(parsed)
             stabilized = self._enforce_consistency(parsed, features)
             self._response_cache[cache_key] = copy.deepcopy(stabilized)
             return stabilized
@@ -258,4 +261,36 @@ RETURN:
                 analysis["verdict"] = verdict.replace("**", "").strip()
 
         parsed["analysis"] = analysis
+        return parsed
+
+    def _normalize_ai_scores(self, parsed: dict) -> dict:
+        if not isinstance(parsed, dict):
+            return parsed
+
+        raw_scores = parsed.get("scores")
+        if not isinstance(raw_scores, dict):
+            return parsed
+
+        numeric_values: list[float] = []
+        for value in raw_scores.values():
+            if isinstance(value, (int, float)):
+                numeric_values.append(float(value))
+
+        # Some model responses return probabilities (0-1). Convert to 0-100 scale.
+        scale = 100.0 if numeric_values and max(numeric_values) <= 1.5 else 1.0
+
+        normalized_scores: dict[str, float] = {}
+        for key, value in raw_scores.items():
+            if not isinstance(value, (int, float)):
+                continue
+            scaled = float(value) * scale
+            normalized_scores[str(key)] = round(max(0.0, min(100.0, scaled)), 2)
+
+        # Preserve expected keys even when model omits some values.
+        for key in self._SCORE_KEYS:
+            if key in raw_scores and key not in normalized_scores and isinstance(raw_scores.get(key), (int, float)):
+                scaled = float(raw_scores[key]) * scale
+                normalized_scores[key] = round(max(0.0, min(100.0, scaled)), 2)
+
+        parsed["scores"] = normalized_scores
         return parsed
