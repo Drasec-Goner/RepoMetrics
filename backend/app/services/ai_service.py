@@ -150,7 +150,10 @@ RETURN:
             ):
                 continue
 
-            cleaned_strengths.append(text.replace("**", "").strip())
+            normalized = text.replace("**", "").strip()
+            if not normalized:
+                continue
+            cleaned_strengths.append(normalized)
 
         cleaned_weaknesses = []
         for item in weaknesses:
@@ -168,7 +171,10 @@ RETURN:
             ):
                 continue
 
-            cleaned_weaknesses.append(text.replace("**", "").strip())
+            normalized = text.replace("**", "").strip()
+            if not normalized:
+                continue
+            cleaned_weaknesses.append(normalized)
 
         if isinstance(analysis, dict):
             if not cleaned_strengths:
@@ -190,7 +196,12 @@ RETURN:
 
             recs = analysis.get("recommendations", [])
             if isinstance(recs, list):
-                analysis["recommendations"] = [str(r).replace("**", "").strip() for r in recs]
+                analysis["recommendations"] = [
+                    cleaned
+                    for r in recs
+                    for cleaned in [str(r).replace("**", "").strip()]
+                    if cleaned
+                ]
 
             verdict = analysis.get("verdict", "")
             if isinstance(verdict, str):

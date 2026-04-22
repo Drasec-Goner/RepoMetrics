@@ -1,5 +1,13 @@
 class HybridService:
 
+    _CATEGORY_WEIGHTS = {
+        "activity": 0.26,
+        "collaboration": 0.24,
+        "documentation": 0.22,
+        "stability": 0.22,
+        "popularity": 0.06,
+    }
+
     @staticmethod
     def _clamp01(value: float) -> float:
         return max(0.0, min(1.0, float(value)))
@@ -32,13 +40,26 @@ class HybridService:
                 "rule": round(rule, 2),
                 "ai": round(ai, 2),
                 "final": final_score,
+                "overall_weight": round(HybridService._CATEGORY_WEIGHTS.get(key, 0.0), 3),
                 "weights": {
                     "rule_weight": round(rule_weight, 3),
                     "ai_weight": round(ai_weight, 3),
                 },
             }
 
-        overall = sum(final.values()) / len(final) if final else 0
+        if final:
+            weighted_total = 0.0
+            total_weight = 0.0
+            for key, value in final.items():
+                weight = float(HybridService._CATEGORY_WEIGHTS.get(key, 0.0))
+                if weight <= 0:
+                    continue
+                weighted_total += value * weight
+                total_weight += weight
+
+            overall = (weighted_total / total_weight) if total_weight > 0 else (sum(final.values()) / len(final))
+        else:
+            overall = 0
 
         return {
             "category_scores": final,

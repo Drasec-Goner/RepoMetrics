@@ -77,7 +77,29 @@ export interface AnalysisResponse {
     breakdown?: Record<string, number>;
     overall_score?: number;
     category_scores?: Record<string, number>;
-    category_details?: Record<string, { rule: number; ai: number; final: number }>;
+    category_details?: Record<
+      string,
+      {
+        rule: number;
+        ai: number;
+        final: number;
+        weights?: {
+          rule_weight: number;
+          ai_weight: number;
+        };
+      }
+    >;
+    blend?: {
+      rule_weight: number;
+      ai_weight: number;
+      ai_confidence: number;
+      feature_signal_quality: number;
+    };
+    methodology?: {
+      temporal_normalization: boolean;
+      stability_model: string;
+      hybrid_blend: string;
+    };
     risk?: {
       score: number;
       level: "Low" | "Moderate" | "High" | "Critical";

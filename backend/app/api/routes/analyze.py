@@ -40,11 +40,11 @@ def _dedupe_lines(items: list[str], limit: int = 6) -> list[str]:
 
 
 def _grade_from_score(score: float) -> str:
-    if score >= 85:
+    if score >= 80:
         return "A"
-    if score >= 70:
+    if score >= 65:
         return "B"
-    if score >= 50:
+    if score >= 45:
         return "C"
     return "D"
 
@@ -478,6 +478,7 @@ async def analyze_repo(
         contributors = await GitHubService.fetch_contributors(owner, repo, token)
         pulls = await GitHubService.fetch_pulls(owner, repo, token)
         issues = await GitHubService.fetch_issues(owner, repo, token)
+        releases = await GitHubService.fetch_releases(owner, repo, token)
         readme = await GitHubService.fetch_readme(owner, repo, token)
         languages = await GitHubService.fetch_languages(owner, repo, token)
 
@@ -492,6 +493,7 @@ async def analyze_repo(
             issues or [],
             readme or "",
             languages or {},
+            releases or [],
         )
 
         # -------------------------
@@ -526,6 +528,7 @@ async def analyze_repo(
         ai_analysis.setdefault("recommendations", [])
 
         rule_insights = _rule_based_insights(features, rule_scores)
+        ai_analysis["strengths"] = _dedupe_lines(ai_analysis.get("strengths", []) + rule_insights["strengths"])
         ai_analysis["weaknesses"] = _dedupe_lines(ai_analysis.get("weaknesses", []) + rule_insights["weaknesses"])
         ai_analysis["recommendations"] = _dedupe_lines(ai_analysis.get("recommendations", []) + rule_insights["recommendations"], limit=10)
 
@@ -560,6 +563,11 @@ async def analyze_repo(
         risk = _calculate_risk(final_score, rule_scores, features)
         hybrid["grade"] = _grade_from_score(final_score)
         hybrid["risk"] = risk
+        hybrid["methodology"] = {
+            "temporal_normalization": True,
+            "stability_model": "issue+cadence+contributor-distribution",
+            "hybrid_blend": "confidence-adaptive",
+        }
 
         historical = _build_historical_analysis(commits or [], final_score, rule_scores)
         hurt_factors = _build_score_hurt_factors(rule_scores, features, ai_analysis)

@@ -62,6 +62,14 @@ class GitHubService:
         return await GitHubService._request(url, token)
 
     # -------------------------
+    # RELEASES
+    # -------------------------
+    @staticmethod
+    async def fetch_releases(owner, repo, token=None):
+        url = f"{settings.GITHUB_API_BASE}/repos/{owner}/{repo}/releases?per_page=100"
+        return await GitHubService._request(url, token)
+
+    # -------------------------
     # LANGUAGES
     # -------------------------
     @staticmethod

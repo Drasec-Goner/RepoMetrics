@@ -85,17 +85,52 @@ class ScoringService:
         return ScoringService.clamp((0.35 * volume_signal + 0.65 * recency_signal) * 100.0)
 
     @staticmethod
+    def commit_rhythm_stability(commit_dates: list[datetime], horizon_days: int = 180) -> float:
+        if not commit_dates:
+            return 0.5
+
+        now = datetime.utcnow()
+        filtered = [dt for dt in sorted(commit_dates) if (now - dt).days <= horizon_days]
+        if len(filtered) < 3:
+            return 0.5
+
+        intervals = []
+        for idx in range(1, len(filtered)):
+            interval_days = max(0.0, (filtered[idx] - filtered[idx - 1]).total_seconds() / 86400.0)
+            intervals.append(interval_days)
+
+        if not intervals:
+            return 0.5
+
+        mean_gap = sum(intervals) / len(intervals)
+        if mean_gap <= 0:
+            return 1.0
+
+        variance = sum((gap - mean_gap) ** 2 for gap in intervals) / len(intervals)
+        std_dev = math.sqrt(max(0.0, variance))
+        coeff_variation = std_dev / mean_gap
+
+        # Lower variation indicates more stable cadence. 0.9 maps near neutral.
+        return ScoringService.clamp01(1.0 - (coeff_variation / 0.9))
+
+    @staticmethod
     def calculate_rule_scores(features: dict, commit_dates: list[datetime]) -> dict:
         commit_count = float(features.get("commit_count", 0) or 0)
         contributor_count = float(features.get("contributors", 0) or 0)
         pr_total = float(features.get("pr_total", 0) or 0)
         pr_merged_ratio = float(features.get("pr_merged_ratio", 0) or 0)
         issue_closure_rate = float(features.get("issue_closure_rate", 0) or 0)
+        issue_closure_per_month = float(features.get("issue_closure_per_month", 0) or 0)
+        commit_frequency_per_month = float(features.get("commit_frequency_per_month", 0) or 0)
+        pr_frequency_per_month = float(features.get("pr_frequency_per_month", 0) or 0)
+        bus_factor_proxy = float(features.get("bus_factor_proxy", 0) or 0)
+        release_count = float(features.get("release_count", 0) or 0)
 
         stars = float(features.get("stars", 0) or 0)
         forks = float(features.get("forks", 0) or 0)
         subscribers = float(features.get("subscribers_count", 0) or 0)
         watchers = float(features.get("watchers_count", 0) or 0)
+        stars_per_month = float(features.get("stars_per_month", 0) or 0)
 
         open_issues = float(features.get("open_issues_count", 0) or 0)
         readme_length = float(features.get("readme_length", 0) or 0)
@@ -109,10 +144,23 @@ class ScoringService:
         license_present = bool(features.get("license_present"))
 
         activity = ScoringService.recency_activity_score(commit_dates)
+        rhythm_stability = ScoringService.commit_rhythm_stability(commit_dates)
 
         merge_conf = ScoringService.confidence_adjusted_ratio(pr_merged_ratio, pr_total)
+        merge_ratio_signal = ScoringService.clamp01(pr_merged_ratio)
         contributor_signal = ScoringService.log_normalized(contributor_count, 50.0)
-        collaboration = ScoringService.clamp((0.7 * merge_conf + 0.3 * contributor_signal) * 100.0)
+        participation_signal = ScoringService.saturating(pr_total + contributor_count, 30.0)
+        collaboration = ScoringService.clamp(
+            (
+                0.42 * (0.6 * merge_conf + 0.4 * merge_ratio_signal)
+                + 0.38 * contributor_signal
+                + 0.20 * participation_signal
+            )
+            * 100.0
+        )
+        # Avoid overly harsh collaboration penalties for small but actively maintained repositories.
+        if contributor_count >= 1 and commit_count >= 25 and pr_total <= 2:
+            collaboration = max(collaboration, 35.0)
 
         readability_signal = ScoringService.normalize(readme_flesch, 100.0)
         structure_signal = ScoringService.normalize(readme_sections, 12.0)
@@ -137,22 +185,42 @@ class ScoringService:
             max(open_issues, 1.0) + max(float(features.get("closed_issues_count", 0) or 0), 0.0),
         )
         issue_burden = 1.0 - ScoringService.log_normalized(open_issues, 500.0)
-        stability = ScoringService.clamp((0.65 * closure_conf + 0.35 * issue_burden) * 100.0)
-
-        popularity = ScoringService.clamp(
+        issue_velocity = ScoringService.saturating(issue_closure_per_month, 8.0)
+        release_signal = ScoringService.saturating(release_count, 18.0)
+        stability = ScoringService.clamp(
             (
-                0.55 * ScoringService.log_normalized(stars, 100000.0)
-                + 0.20 * ScoringService.log_normalized(forks, 30000.0)
-                + 0.15 * ScoringService.log_normalized(watchers, 100000.0)
-                + 0.05 * ScoringService.log_normalized(subscribers, 15000.0)
-                + (0.05 if license_present else 0.0)
+                0.40 * closure_conf
+                + 0.22 * issue_burden
+                + 0.16 * issue_velocity
+                + 0.12 * rhythm_stability
+                + 0.10 * max(0.0, min(1.0, bus_factor_proxy))
             )
             * 100.0
         )
+        # Small stabilization bonus for projects with regular release practice.
+        stability = ScoringService.clamp((0.92 * stability) + (0.08 * (release_signal * 100.0)))
 
-        # Blend a light long-horizon commit signal into activity to reduce volatility.
+        popularity_signal = (
+            0.55 * ScoringService.log_normalized(stars, 100000.0)
+            + 0.20 * ScoringService.log_normalized(forks, 30000.0)
+            + 0.15 * ScoringService.log_normalized(watchers, 100000.0)
+            + 0.05 * ScoringService.log_normalized(subscribers, 15000.0)
+            + 0.03 * ScoringService.saturating(stars_per_month, 15.0)
+            + (0.02 if license_present else 0.0)
+        )
+        # Keep popularity as a positive signal without making smaller/new repos look disproportionately poor.
+        popularity = ScoringService.clamp(25.0 + (75.0 * popularity_signal))
+
+        # Blend long-horizon and age-normalized delivery signals to reduce temporal bias.
         long_horizon_signal = ScoringService.log_normalized(commit_count, 5000.0) * 100.0
-        activity = ScoringService.clamp((0.75 * activity) + (0.25 * long_horizon_signal))
+        cadence_signal = ScoringService.saturating(commit_frequency_per_month, 12.0) * 100.0
+        flow_signal = ScoringService.saturating(pr_frequency_per_month, 10.0) * 100.0
+        activity = ScoringService.clamp(
+            (0.52 * activity)
+            + (0.18 * long_horizon_signal)
+            + (0.20 * cadence_signal)
+            + (0.10 * flow_signal)
+        )
 
         return {
             "activity": round(activity, 2),

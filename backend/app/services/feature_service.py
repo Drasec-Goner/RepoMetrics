@@ -7,9 +7,10 @@ from datetime import datetime
 class FeatureService:
 
     @staticmethod
-    def extract_features(repo, commits, contributors, pulls, issues, readme, languages=None):
+    def extract_features(repo, commits, contributors, pulls, issues, readme, languages=None, releases=None):
         features = {}
         languages = languages or {}
+        releases = releases or []
 
         # Activity Metrics
         features["commit_count"] = len(commits)
@@ -17,10 +18,13 @@ class FeatureService:
 
         # Collaboration
         features["contributors"] = len(contributors)
+        features["top_contributor_share"] = FeatureService._top_contributor_share(contributors)
+        features["bus_factor_proxy"] = max(0.0, 1.0 - features["top_contributor_share"])
         features["pr_total"] = len(pulls)
         features["pr_merged_ratio"] = FeatureService._pr_merge_ratio(pulls)
         features["issue_closure_rate"] = FeatureService._issue_closure_rate(issues)
         features["closed_issues_count"] = sum(1 for issue in issues if issue.get("state") == "closed")
+        features["release_count"] = len(releases)
 
         # Popularity
         features["stars"] = repo.get("stargazers_count", 0)
@@ -34,6 +38,13 @@ class FeatureService:
         features["is_archived"] = bool(repo.get("archived", False))
         features["has_wiki"] = bool(repo.get("has_wiki", False))
         features["license_present"] = bool(repo.get("license"))
+        features["repo_age_days"] = FeatureService._repo_age_days(repo)
+
+        age_months = max(features["repo_age_days"] / 30.0, 1.0)
+        features["commit_frequency_per_month"] = round(features["commit_count"] / age_months, 3)
+        features["pr_frequency_per_month"] = round(features["pr_total"] / age_months, 3)
+        features["issue_closure_per_month"] = round(features["closed_issues_count"] / age_months, 3)
+        features["stars_per_month"] = round(features["stars"] / age_months, 3)
 
         # Language profile
         features["language_count"] = len(languages)
@@ -177,3 +188,29 @@ class FeatureService:
         if math.isnan(score) or math.isinf(score):
             return 0.0
         return max(0.0, min(100.0, float(score)))
+
+    @staticmethod
+    def _repo_age_days(repo: dict) -> int:
+        created_at = str(repo.get("created_at") or "")
+        if not created_at:
+            return 365
+
+        try:
+            created_date = datetime.fromisoformat(created_at.replace("Z", ""))
+            age_days = max(1, (datetime.utcnow() - created_date).days)
+            return age_days
+        except ValueError:
+            return 365
+
+    @staticmethod
+    def _top_contributor_share(contributors: list[dict]) -> float:
+        if not contributors:
+            return 0.0
+
+        contributions = [float(c.get("contributions", 0) or 0) for c in contributors]
+        total = sum(contributions)
+        if total <= 0:
+            return 0.0
+
+        top = max(contributions)
+        return max(0.0, min(1.0, top / total))
